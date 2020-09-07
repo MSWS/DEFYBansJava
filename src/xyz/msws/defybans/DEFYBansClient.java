@@ -2,12 +2,15 @@ package xyz.msws.defybans;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.security.auth.login.LoginException;
 
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
+import xyz.msws.defybans.commands.BanStatsCommand;
 import xyz.msws.defybans.commands.PingCommand;
 import xyz.msws.defybans.data.FileSave;
 import xyz.msws.defybans.data.PunishmentTracker;
@@ -15,6 +18,8 @@ import xyz.msws.defybans.data.Save;
 import xyz.msws.defybans.tracker.BanTracker;
 
 public class DEFYBansClient extends Client {
+
+	private Map<Long, PunishmentTracker> trackers = new HashMap<>();
 
 	public DEFYBansClient(String token) {
 		super(token);
@@ -34,6 +39,7 @@ public class DEFYBansClient extends Client {
 			jda.addEventListener(commands);
 
 			commands.registerCommand(new PingCommand(this, "ping"));
+			commands.registerCommand(new BanStatsCommand(this, "banstats"));
 
 		} catch (LoginException | InterruptedException e) {
 			e.printStackTrace();
@@ -65,6 +71,7 @@ public class DEFYBansClient extends Client {
 			}
 
 			PunishmentTracker tracker = new PunishmentTracker(channel, save);
+			trackers.put(g.getIdLong(), tracker);
 			BanTracker timer = new BanTracker("https://bans.defyclan.com/index.php?p=banlist", tracker);
 			timer.start();
 
