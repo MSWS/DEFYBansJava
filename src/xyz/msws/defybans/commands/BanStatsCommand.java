@@ -2,7 +2,6 @@ package xyz.msws.defybans.commands;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -38,7 +37,9 @@ public class BanStatsCommand extends AbstractCommand {
 		super(client, name);
 		if ((assigner = client.getModule(GuildTrackAssigner.class)) == null)
 			client.getCommandListener().unregisterCommand(this);
-		setAliases(Arrays.asList("bs"));
+		setAliases("bs");
+		setDescription("Views specific ban statistics");
+		setUsage("<identifier/admin>");
 	}
 
 	@Override

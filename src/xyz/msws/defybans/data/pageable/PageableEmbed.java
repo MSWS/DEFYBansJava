@@ -80,6 +80,9 @@ public class PageableEmbed extends Pageable<MessageEmbed> {
 		this.page = page;
 		channel.sendMessage(pages.get(page)).queue(m -> {
 			this.id = m.getIdLong();
+			for (String s : confirms.keySet())
+				m.addReaction(s).queue();
+
 			if (this.page > 0) {
 				m.addReaction("◀").queue();
 				if (this.page > 1) {

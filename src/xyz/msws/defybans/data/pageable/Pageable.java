@@ -1,9 +1,11 @@
 package xyz.msws.defybans.data.pageable;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -11,6 +13,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import xyz.msws.defybans.Client;
+import xyz.msws.defybans.data.Callback;
 
 public abstract class Pageable<T> extends ListenerAdapter implements List<T> {
 	protected List<T> pages;
@@ -18,6 +21,7 @@ public abstract class Pageable<T> extends ListenerAdapter implements List<T> {
 	protected Client client;
 	protected User member;
 	protected long id;
+	protected Map<String, Callback<GuildMessageReactionAddEvent>> confirms = new HashMap<>();
 
 	public Pageable(Client client) {
 		this.client = client;
@@ -31,6 +35,10 @@ public abstract class Pageable<T> extends ListenerAdapter implements List<T> {
 
 	public User getBoundTo() {
 		return member;
+	}
+
+	public void addCallback(String trigger, Callback<GuildMessageReactionAddEvent> callback) {
+		confirms.put(trigger, callback);
 	}
 
 	public abstract void send(TextChannel channel, int page);
@@ -61,6 +69,9 @@ public abstract class Pageable<T> extends ListenerAdapter implements List<T> {
 		}
 
 		event.retrieveMessage().queue(msg -> msg.removeReaction(react.getEmoji(), event.getUser()).queue());
+
+		if (confirms.containsKey(react.getEmoji()))
+			confirms.get(react.getEmoji()).execute(event);
 
 		switch (react.getEmoji()) {
 			case "▶":

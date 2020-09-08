@@ -33,6 +33,10 @@ public class CommandListener extends ListenerAdapter {
 		return commands.stream().filter(cmd -> cmd.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
 	}
 
+	public List<AbstractCommand> getCommands() {
+		return commands;
+	}
+
 	@Override
 	public void onMessageReceived(MessageReceivedEvent event) {
 		if (event.getAuthor().getIdLong() == client.getJDA().getSelfUser().getIdLong())

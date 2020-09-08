@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.json.JSONException;
+
 import xyz.msws.defybans.data.punishment.Punishment;
 
 public class FileSave implements Save {
@@ -50,7 +52,11 @@ public class FileSave implements Save {
 				while ((s = breader.readLine()) != null) {
 					if (s.isEmpty())
 						continue;
-					data.add(new Punishment(s));
+					try {
+						data.add(new Punishment(s));
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -78,6 +84,11 @@ public class FileSave implements Save {
 	@Override
 	public Set<Punishment> getPunishments() {
 		return data;
+	}
+
+	@Override
+	public void deletePunishment(Punishment p) {
+		data.remove(p);
 	}
 
 }

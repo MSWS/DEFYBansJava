@@ -83,6 +83,8 @@ public class PageableText extends Pageable<Message> {
 		this.page = page;
 		channel.sendMessage(pages.get(page)).queue(m -> {
 			this.id = m.getIdLong();
+			for (String s : confirms.keySet())
+				m.addReaction(s).queue();
 			if (this.page > 0) {
 				m.addReaction("◀").queue();
 				if (this.page > 1) {
@@ -92,7 +94,7 @@ public class PageableText extends Pageable<Message> {
 					m.addReaction("⏪").queue();
 			}
 
-			m.addReaction("❌").queue();
+//			m.addReaction("❌").queue();
 
 			if (this.page < pages.size() - 1) {
 				m.addReaction("▶").queue();
@@ -146,9 +148,9 @@ public class PageableText extends Pageable<Message> {
 			case "⏪":
 				this.page = 0;
 				break;
-			case "❌":
-				event.retrieveMessage().queue(m -> m.delete().queue());
-				return;
+//			case "❌":
+//				event.retrieveMessage().queue(m -> m.delete().queue());
+//				return;
 			default:
 				System.out.println("Unknown emoji: " + react.getEmoji());
 				return;

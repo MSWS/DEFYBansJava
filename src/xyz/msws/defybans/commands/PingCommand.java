@@ -7,6 +7,9 @@ public class PingCommand extends AbstractCommand {
 
 	public PingCommand(Client client, String name) {
 		super(client, name);
+		setAliases("yo", "uup", "up");
+		setDescription("View the bot's ping");
+		setUsage("");
 	}
 
 	@Override

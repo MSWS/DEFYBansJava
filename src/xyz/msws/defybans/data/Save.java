@@ -20,6 +20,8 @@ public interface Save {
 	default void addPunishment(Punishment p) {
 		addPunishment(p, false);
 	}
+	
+	void deletePunishment(Punishment p);
 
 	void addPunishment(Punishment p, boolean save);
 

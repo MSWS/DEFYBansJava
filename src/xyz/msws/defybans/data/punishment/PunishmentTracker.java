@@ -2,10 +2,8 @@ package xyz.msws.defybans.data.punishment;
 
 import java.time.Duration;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -16,7 +14,8 @@ import xyz.msws.defybans.data.Save;
 import xyz.msws.defybans.data.punishment.Punishment.Key;
 
 public class PunishmentTracker {
-	private Map<String, Set<Punishment>> punishments = new HashMap<>();
+//	private Map<String, Set<Punishment>> punishments = new HashMap<>();
+	private Set<Punishment> punishments = new HashSet<>();
 
 	private Save data;
 	private TextChannel channel;
@@ -40,16 +39,12 @@ public class PunishmentTracker {
 	}
 
 	private void register(Punishment punish) {
-		Set<Punishment> ps = punishments.getOrDefault(punish.get(Key.STEAMID), new HashSet<Punishment>());
-		ps.add(punish);
-		punishments.put(punish.get(Key.STEAMID, String.class), ps);
+		punishments.add(punish);
 	}
 
 	public void addPunishment(Punishment punish) {
-		Set<Punishment> ps = punishments.getOrDefault(punish.get(Key.STEAMID), new HashSet<Punishment>());
-
 		Punishment old = null;
-		for (Punishment p : ps) {
+		for (Punishment p : punishments) {
 			if (p.isSimilar(punish)) {
 				old = p;
 				break;
@@ -60,19 +55,23 @@ public class PunishmentTracker {
 			return;
 
 		this.channel.sendMessage(punish.createEmbed(old)).queue();
-		ps.remove(punish);
-		ps.add(punish);
-		punishments.put(punish.get(Key.STEAMID, String.class), ps);
+		punishments.remove(punish);
+		punishments.add(punish);
 		data.addPunishment(punish, true);
 	}
 
-	public Set<Punishment> getPunishments(String id) {
-		return punishments.getOrDefault(id, new HashSet<Punishment>());
+	public void delete(Punishment punish, boolean save) {
+		punishments.remove(punish);
+		if (save)
+			data.save();
+	}
+
+	public void delete(Punishment punish) {
+		delete(punish, false);
 	}
 
 	public Set<Punishment> getPunishments(EnumMap<Key, Object> filters) {
-		Set<Punishment> result = new HashSet<Punishment>();
-		punishments.values().forEach(s -> result.addAll(s));
+		Set<Punishment> result = new HashSet<>(punishments);
 
 		for (Entry<Key, Object> entry : filters.entrySet()) {
 			Iterator<Punishment> it = result.iterator();
@@ -87,8 +86,7 @@ public class PunishmentTracker {
 	}
 
 	public Set<Punishment> getPunishmentsRegex(EnumMap<Key, Object> filters) {
-		Set<Punishment> result = new HashSet<Punishment>();
-		punishments.values().forEach(s -> result.addAll(s));
+		Set<Punishment> result = new HashSet<>(punishments);
 
 		for (Entry<Key, Object> entry : filters.entrySet()) {
 			Iterator<Punishment> it = result.iterator();
@@ -105,8 +103,6 @@ public class PunishmentTracker {
 	}
 
 	public Set<Punishment> getPunishments() {
-		Set<Punishment> result = new HashSet<Punishment>();
-		punishments.values().forEach(s -> result.addAll(s));
-		return result;
+		return punishments;
 	}
 }

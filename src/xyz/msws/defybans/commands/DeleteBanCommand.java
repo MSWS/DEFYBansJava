@@ -5,40 +5,50 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 
+import org.apache.commons.lang3.math.NumberUtils;
+
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 import xyz.msws.defybans.Client;
+import xyz.msws.defybans.data.Callback;
+import xyz.msws.defybans.data.pageable.Pageable;
 import xyz.msws.defybans.data.pageable.PageableEmbed;
 import xyz.msws.defybans.data.punishment.Punishment;
 import xyz.msws.defybans.data.punishment.Punishment.Key;
 import xyz.msws.defybans.data.punishment.PunishmentTracker;
 import xyz.msws.defybans.tracker.GuildTrackAssigner;
 
-public class ListBansCommand extends AbstractCommand {
+public class DeleteBanCommand extends AbstractCommand {
 	private GuildTrackAssigner assigner;
 
-	public ListBansCommand(Client client, String name) {
+	public DeleteBanCommand(Client client, String name) {
 		super(client, name);
-
 		if ((assigner = client.getModule(GuildTrackAssigner.class)) == null)
 			client.getCommandListener().unregisterCommand(this);
-		setAliases("lb", "getbans", "search");
+		setAliases("db", "delete");
+		setPermission(Permission.KICK_MEMBERS);
+		setDescription("Deletes specific punishments");
+		setUsage("[Hash/IDs] <Values>");
 	}
 
 	@Override
 	public void execute(Message message, String[] args) {
-		if (args.length < 2) {
+
+		if (args.length == 0) {
 			EmbedBuilder builder = new EmbedBuilder();
-			builder.setTitle("Example usage for ListBans");
+			builder.setTitle("Example usage for DeleteBans");
 			builder.setFooter("Requested by " + message.getAuthor().getAsTag());
 			builder.setColor(Color.CYAN);
 			List<String> desc = new ArrayList<>();
 			String p = client.getPrefix();
-			desc.add(p + "listbans Player: MSWS");
-			desc.add(p + "listbans Player: MSWS\nReason: (?i)rdm");
-			desc.add(p + "listbans Reason: (?i)(hack|cheat|wall)");
+			desc.add(p + "deleteban [Hash]");
+			desc.add(p + "deleteban Player: MSWS");
+			desc.add(p + "deleteban Player: MSWS\nReason: (?i)rdm");
+			desc.add(p + "deleteban Reason: (?i)(hack|cheat|wall)");
 			builder.setDescription(String.join("\n", desc));
 
 			message.getChannel().sendMessage(builder.build()).queue();
@@ -46,6 +56,40 @@ public class ListBansCommand extends AbstractCommand {
 		}
 
 		PunishmentTracker tracker = assigner.getTracker(message.getGuild());
+
+		if (args.length == 1) {
+			if (!NumberUtils.isNumber(args[0])) {
+				message.getChannel().sendMessage("Invalid punishment hash, hashes can only be integers.").queue();
+				return;
+			}
+
+			int hash;
+
+			try {
+				hash = Integer.parseInt(args[0]);
+			} catch (NumberFormatException e) {
+				message.getChannel().sendMessage("An error occured when parsing the specified hash.").queue();
+				return;
+			}
+
+			Punishment punish = null;
+
+			for (Punishment p : tracker.getPunishments()) {
+				if (p.hashCode() == hash) {
+					punish = p;
+					break;
+				}
+			}
+
+			if (punish == null) {
+				message.getChannel().sendMessageFormat("A punishment could not be found with the %d hash.", hash);
+				return;
+			}
+
+			tracker.delete(punish, true);
+			message.getChannel().sendMessage("Punishment successfully deleted.");
+			return;
+		}
 
 		EnumMap<Key, Object> filters = new EnumMap<>(Key.class);
 		List<String> unknown = new ArrayList<>();
@@ -66,7 +110,6 @@ public class ListBansCommand extends AbstractCommand {
 			e = new EmbedBuilder(e).setFooter(i + 1 + " of " + ps.size()).build();
 			embeds.add(e);
 		}
-//		ps.forEach(p -> embeds.add(p.createEmbed()));
 
 		if (!unknown.isEmpty())
 			message.getChannel().sendMessage("Unknown regex: " + MarkdownSanitizer.escape(String.join("\n", unknown)))
@@ -78,7 +121,16 @@ public class ListBansCommand extends AbstractCommand {
 					.queue();
 			return;
 		}
-		new PageableEmbed(client, embeds).bindTo(message.getAuthor()).send(message.getTextChannel());
+
+		Pageable<MessageEmbed> pe = new PageableEmbed(client, embeds).bindTo(message.getAuthor());
+		Callback<GuildMessageReactionAddEvent> confirm = new Callback<GuildMessageReactionAddEvent>() {
+			@Override
+			public void execute(GuildMessageReactionAddEvent call) {
+				ps.forEach(p -> tracker.delete(p));
+			}
+		};
+		pe.addCallback("✅", confirm);
+		pe.send(message.getTextChannel());
 	}
 
 }

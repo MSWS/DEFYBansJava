@@ -1,6 +1,7 @@
 package xyz.msws.defybans.commands;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import net.dv8tion.jda.api.Permission;
@@ -12,7 +13,8 @@ public abstract class AbstractCommand {
 	protected Client client;
 	protected String name;
 	protected Permission perm;
-	protected String usage;
+	protected String usage = "<args>";
+	protected String description = "";
 
 	protected List<String> aliases = new ArrayList<>();
 
@@ -55,6 +57,18 @@ public abstract class AbstractCommand {
 
 	public void setAliases(List<String> aliases) {
 		this.aliases = aliases;
+	}
+
+	public void setAliases(String... strings) {
+		this.aliases = Arrays.asList(strings);
+	}
+
+	public void setDescription(String desc) {
+		this.description = desc;
+	}
+
+	public String getDescription() {
+		return description;
 	}
 
 	public List<String> getAliases() {

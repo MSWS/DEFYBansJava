@@ -86,7 +86,7 @@ public class Punishment {
 	public MessageEmbed createEmbed() {
 		return createEmbed(null);
 	}
-	
+
 	public MessageEmbed createEmbed(Punishment old) {
 		EmbedBuilder builder = new EmbedBuilder();
 		builder.setTitle(
@@ -208,6 +208,12 @@ public class Punishment {
 
 	public <T> T get(Key id, Class<T> cast, T def) {
 		return has(id) ? get(id, cast) : def;
+	}
+
+	public void edit(Punishment newData) {
+		if (!isSimilar(newData))
+			throw new IllegalArgumentException("newData must be similar to current punishment");
+		data = newData.getData();
 	}
 
 	/**
