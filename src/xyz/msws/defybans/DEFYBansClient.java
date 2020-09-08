@@ -5,6 +5,7 @@ import javax.security.auth.login.LoginException;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import xyz.msws.defybans.commands.BanStatsCommand;
+import xyz.msws.defybans.commands.ListBansCommand;
 import xyz.msws.defybans.commands.PingCommand;
 import xyz.msws.defybans.tracker.GuildTrackAssigner;
 
@@ -33,6 +34,7 @@ public class DEFYBansClient extends Client {
 
 			commands.registerCommand(new PingCommand(this, "ping"));
 			commands.registerCommand(new BanStatsCommand(this, "banstats"));
+			commands.registerCommand(new ListBansCommand(this, "listbans"));
 
 		} catch (LoginException | InterruptedException e) {
 			e.printStackTrace();

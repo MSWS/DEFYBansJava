@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -196,7 +197,7 @@ public class BanStatsCommand extends AbstractCommand {
 			rank.put(p.get(id, String.class), rank.getOrDefault(p.get(id, String.class), 0) + 1);
 		}
 
-		sortByValue(rank);
+		rank = sortByValue(rank);
 
 		StringJoiner joiner = new StringJoiner("\n");
 		int i = 0;
@@ -215,7 +216,7 @@ public class BanStatsCommand extends AbstractCommand {
 			rank.put(p.get(id, String.class), rank.getOrDefault(p.get(id, String.class), 0) + 1);
 		}
 
-		sortByValue(rank);
+		rank = sortByValue(rank);
 
 		List<String> result = new ArrayList<>();
 
@@ -228,6 +229,7 @@ public class BanStatsCommand extends AbstractCommand {
 	private <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
 		List<Entry<K, V>> list = new ArrayList<>(map.entrySet());
 		list.sort(Entry.comparingByValue());
+		Collections.reverse(list);
 
 		Map<K, V> result = new LinkedHashMap<>();
 		for (Entry<K, V> entry : list) {

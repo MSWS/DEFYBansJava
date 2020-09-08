@@ -1,15 +1,14 @@
 package xyz.msws.defybans.data.punishment;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import net.dv8tion.jda.api.entities.TextChannel;
 import xyz.msws.defybans.data.Callback;
@@ -71,8 +70,8 @@ public class PunishmentTracker {
 		return punishments.getOrDefault(id, new HashSet<Punishment>());
 	}
 
-	public List<Punishment> getPunishments(EnumMap<Key, Object> filters) {
-		List<Punishment> result = new ArrayList<>();
+	public Set<Punishment> getPunishments(EnumMap<Key, Object> filters) {
+		Set<Punishment> result = new HashSet<Punishment>();
 		punishments.values().forEach(s -> result.addAll(s));
 
 		for (Entry<Key, Object> entry : filters.entrySet()) {
@@ -80,6 +79,24 @@ public class PunishmentTracker {
 			while (it.hasNext()) {
 				Punishment p = it.next();
 				if (!entry.getValue().equals(p.getData().get(entry.getKey())))
+					it.remove();
+			}
+		}
+
+		return result;
+	}
+
+	public Set<Punishment> getPunishmentsRegex(EnumMap<Key, Object> filters) {
+		Set<Punishment> result = new HashSet<Punishment>();
+		punishments.values().forEach(s -> result.addAll(s));
+
+		for (Entry<Key, Object> entry : filters.entrySet()) {
+			Iterator<Punishment> it = result.iterator();
+			while (it.hasNext()) {
+				Punishment p = it.next();
+				String value = p.get(entry.getKey(), String.class);
+
+				if (!Pattern.matches((String) entry.getValue(), value))
 					it.remove();
 			}
 		}

@@ -1,8 +1,8 @@
 package xyz.msws.defybans.data.pageable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -15,9 +15,9 @@ public class PageableEmbed extends Pageable<MessageEmbed> {
 		super(client);
 	}
 
-	public PageableEmbed(Client client, List<MessageEmbed> pages) {
+	public PageableEmbed(Client client, Collection<MessageEmbed> pages) {
 		this(client);
-		this.pages = pages;
+		this.pages = new ArrayList<>(pages);
 	}
 
 	public PageableEmbed(Client client, MessageEmbed... msgs) {

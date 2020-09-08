@@ -1,8 +1,8 @@
 package xyz.msws.defybans.data.pageable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -17,9 +17,9 @@ public class PageableText extends Pageable<Message> {
 		super(client);
 	}
 
-	public PageableText(Client client, List<Message> pages) {
+	public PageableText(Client client, Collection<Message> pages) {
 		this(client);
-		this.pages = pages;
+		this.pages = new ArrayList<>(pages);
 	}
 
 	public PageableText(Client client, Message... msgs) {

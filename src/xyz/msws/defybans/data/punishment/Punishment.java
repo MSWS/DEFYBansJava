@@ -83,6 +83,10 @@ public class Punishment {
 
 	private EnumSet<Key> ignore = EnumSet.of(Key.TYPE, Key.REASON);
 
+	public MessageEmbed createEmbed() {
+		return createEmbed(null);
+	}
+	
 	public MessageEmbed createEmbed(Punishment old) {
 		EmbedBuilder builder = new EmbedBuilder();
 		builder.setTitle(
