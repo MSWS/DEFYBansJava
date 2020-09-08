@@ -3,6 +3,8 @@ package xyz.msws.defybans.commands;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -11,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -39,15 +43,18 @@ public class BanStatsCommand extends AbstractCommand {
 	@Override
 	public void execute(Message message, String[] args) {
 		PunishmentTracker tracker = assigner.getTracker(message.getGuild());
+		Set<Punishment> ps = tracker.getPunishments();
+		Set<String> admins = new HashSet<>();
+		ps.forEach(p -> admins.add(p.get(Key.ADMIN, String.class).toLowerCase()));
 
 		if (args.length == 0) {
 			EmbedBuilder builder = new EmbedBuilder();
-			builder.setTitle("Ban Statistics for " + message.getGuild().getName());
+			builder.setTitle("Punishment Statistics for " + message.getGuild().getName());
 			builder.setAuthor("MSWS", "https://github.com/MSWS", "https://i.imgur.com/weIiWIz.png");
 			builder.setColor(new Color(255, 0, 0));
 			builder.appendDescription("**Bans Within**:\n");
-			builder.setFooter("SourceMod Bans Tracker created by MSWS");
-			Set<Punishment> ps = tracker.getPunishments();
+			builder.setFooter(
+					"Requested by " + message.getAuthor().getAsTag() + "\nSourceMod Bans Tracker created by MSWS");
 
 			for (long sec : new long[] { TimeUnit.YEARS.getSeconds(), TimeUnit.MONTHS.getSeconds(),
 					TimeUnit.WEEKS.getSeconds(), TimeUnit.DAYS.getSeconds() * 3, TimeUnit.DAYS.getSeconds() }) {
@@ -62,36 +69,22 @@ public class BanStatsCommand extends AbstractCommand {
 				builder.appendDescription(TimeParser.getDurationDescription(sec, 1) + ": " + copy.size() + "\n");
 			}
 
-			Map<String, Integer> admins = new HashMap<>(), reasons = new HashMap<>();
+			Map<String, Integer> reasons = new HashMap<>();
 
 			for (Punishment p : ps) {
 				String adm = p.get(Key.ADMIN, String.class), reason = p.get(Key.REASON, String.class);
-				admins.put(adm, admins.getOrDefault(adm, 0) + 1);
+				admins.add(adm);
 				reasons.put(reason, reasons.getOrDefault(reason, 0) + 1);
 			}
 
-			admins = sortByValue(admins);
-			reasons = sortByValue(reasons);
+			builder.appendDescription("\n**Admin Punishment Count**\n");
+			builder.appendDescription(rank(ps, Key.ADMIN, 5));
 
-			builder.appendDescription("\n**Admin Ban Count**\n");
-			int i = 0;
-			for (Entry<String, Integer> entry : admins.entrySet()) {
-				builder.appendDescription(MarkdownSanitizer.escape(entry.getKey()) + ": " + entry.getValue() + "\n");
-				i++;
-				if (i > 4)
-					break;
-			}
+			builder.appendDescription("\n\n**Most Common Reasons**\n");
 
-			builder.appendDescription("\n**Popular Reasons**\n");
-			i = 0;
-			for (Entry<String, Integer> entry : reasons.entrySet()) {
-				builder.appendDescription(MarkdownSanitizer.escape(entry.getKey()) + ": " + entry.getValue() + "\n");
-				i++;
-				if (i > 4)
-					break;
-			}
+			builder.appendDescription(rank(ps, Key.REASON, 5));
 
-			builder.addField("Total Bans", ps.size() + "", true);
+			builder.addField("Total Punishments", ps.size() + "", true);
 			builder.addField("Total Admins", admins.size() + "", true);
 			builder.addField("Unique Reasons",
 					String.format("%d/%d (%.2f%%)", reasons.size(), tracker.getPunishments().size(),
@@ -102,13 +95,50 @@ public class BanStatsCommand extends AbstractCommand {
 		}
 
 		if (args.length >= 1) {
-			Key key = Key.fromString(String.join(" ", args));
+			String id = String.join(" ", args);
+			if (admins.contains(id.toLowerCase())) {
+				List<Punishment> values = tracker.getPunishments().stream()
+						.filter(p -> p.get(Key.ADMIN, String.class).equalsIgnoreCase(id))
+						.sorted(new Comparator<Punishment>() {
+							public int compare(Punishment o1, Punishment o2) {
+								return o1.getDate() == o2.getDate() ? 0 : o1.getDate() > o2.getDate() ? -1 : 1;
+							};
+						}).collect(Collectors.toList());
+
+				EmbedBuilder builder = new EmbedBuilder();
+				builder.setTitle("Punishment Statistics for " + id);
+				builder.setFooter("Requested by " + message.getAuthor().getAsTag());
+				builder.setColor(Color.BLUE);
+
+				builder.appendDescription("**Most Common Reasons**\n");
+				builder.appendDescription(rank(values, Key.REASON));
+				builder.appendDescription("\n\n**Most Common Players**\n");
+				builder.appendDescription(rank(values, Key.USERNAME));
+				builder.appendDescription("\n\n**Most Common Durations**\n");
+				builder.appendDescription(rank(values, Key.DURATION));
+
+				builder.addField("Total Bans", values.size() + "", true);
+
+				long seconds = 0;
+				for (Punishment p : values)
+					seconds += p.getDuration();
+				seconds /= values.size();
+				builder.addField("Average Ban Duration", TimeParser.getDurationDescription(seconds), true);
+				builder.addField("First Ban", values.get(values.size() - 1).get(Key.DATE, String.class), true);
+				builder.addField("Last Ban", values.get(0).get(Key.DATE, String.class), true);
+				message.getChannel().sendMessage(builder.build()).delay(1, java.util.concurrent.TimeUnit.MINUTES)
+						.map(Message::delete).queue();
+				return;
+			}
+
+			Key key = Key.fromString(id);
 			if (key == null) {
 				EmbedBuilder builder = new EmbedBuilder();
-				builder.appendDescription("Unknown identifier, valid identifiers:\n");
+				builder.setTitle("Unknown identifier");
+				builder.setColor(Color.RED);
 
 				List<MessageEmbed> pages = new ArrayList<>();
-				int i = 1;
+				int i = 1; // Set to one to avoid 0 % 7 = 0
 				for (Key k : Key.values()) {
 					builder.appendDescription(k.getId() + "\n");
 					if (i % 7 == 0) {
@@ -118,11 +148,81 @@ public class BanStatsCommand extends AbstractCommand {
 					}
 					i++;
 				}
+				for (String adm : admins) {
+					builder.appendDescription(adm + "\n");
+					if (i % 7 == 0) {
+						pages.add(builder.build());
+						builder = new EmbedBuilder();
+						builder.setColor(Color.RED);
+						i = 1;
+					}
+					i++;
+				}
 
-				new PageableEmbed(client, pages).send(message.getTextChannel());
+				new PageableEmbed(client, pages).bindTo(message.getAuthor()).send(message.getTextChannel());
+				return;
 			}
+
+			EmbedBuilder builder = new EmbedBuilder();
+			builder.setTitle("Punishment Statistics by " + key.getId());
+			builder.setFooter("Requested by " + message.getAuthor().getAsTag());
+			builder.setColor(Color.GREEN);
+
+			List<MessageEmbed> pages = new ArrayList<>();
+			int i = 1;
+			for (String line : rankList(ps, key)) {
+				builder.appendDescription(line + "\n");
+				if (i % 10 == 0) {
+					pages.add(builder.build());
+					builder = new EmbedBuilder();
+					builder.setColor(Color.GREEN);
+					builder.setFooter("Requested by " + message.getAuthor().getAsTag());
+					i = 1;
+				}
+				i++;
+			}
+
+			new PageableEmbed(client, pages).bindTo(message.getAuthor()).send(message.getTextChannel());
+		}
+	}
+
+	private String rank(Collection<Punishment> ps, Key id) {
+		return rank(ps, id, 5);
+	}
+
+	private String rank(Collection<Punishment> ps, Key id, int size) {
+		Map<String, Integer> rank = new HashMap<>();
+		for (Punishment p : ps) {
+			rank.put(p.get(id, String.class), rank.getOrDefault(p.get(id, String.class), 0) + 1);
 		}
 
+		sortByValue(rank);
+
+		StringJoiner joiner = new StringJoiner("\n");
+		int i = 0;
+		for (Entry<String, Integer> entry : rank.entrySet()) {
+			joiner.add(MarkdownSanitizer.escape(entry.getKey()) + ": " + entry.getValue());
+			i++;
+			if (i >= size)
+				break;
+		}
+		return joiner.toString();
+	}
+
+	private List<String> rankList(Collection<Punishment> ps, Key id) {
+		Map<String, Integer> rank = new HashMap<>();
+		for (Punishment p : ps) {
+			rank.put(p.get(id, String.class), rank.getOrDefault(p.get(id, String.class), 0) + 1);
+		}
+
+		sortByValue(rank);
+
+		List<String> result = new ArrayList<>();
+
+		for (Entry<String, Integer> entry : rank.entrySet())
+			result.add(MarkdownSanitizer.escape(entry.getKey()) + ": " + entry.getValue());
+
+		return result;
 	}
 
 	private <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {

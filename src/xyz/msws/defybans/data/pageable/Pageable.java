@@ -24,8 +24,9 @@ public abstract class Pageable<T> extends ListenerAdapter implements List<T> {
 		client.getJDA().addEventListener(this);
 	}
 
-	public void bindTo(User member) {
+	public Pageable<T> bindTo(User member) {
 		this.member = member;
+		return this;
 	}
 
 	public User getBoundTo() {
@@ -47,7 +48,7 @@ public abstract class Pageable<T> extends ListenerAdapter implements List<T> {
 			return;
 		if (member != null && event.getMember().getIdLong() != member.getIdLong()) {
 			if (react.isEmote()) {
-				event.retrieveMessage().queue(msg -> msg.removeReaction(react.getEmoji(), event.getUser()).queue());
+				event.retrieveMessage().queue(msg -> msg.removeReaction(react.getEmote(), event.getUser()).queue());
 			} else {
 				event.retrieveMessage().queue(msg -> msg.removeReaction(react.getEmoji(), event.getUser()).queue());
 			}
@@ -58,6 +59,7 @@ public abstract class Pageable<T> extends ListenerAdapter implements List<T> {
 			event.retrieveMessage().queue(msg -> msg.removeReaction(react.getEmoji(), event.getUser()).queue());
 			return;
 		}
+
 		event.retrieveMessage().queue(msg -> msg.removeReaction(react.getEmoji(), event.getUser()).queue());
 
 		switch (react.getEmoji()) {
@@ -65,7 +67,7 @@ public abstract class Pageable<T> extends ListenerAdapter implements List<T> {
 				this.page = Math.min(page + 1, pages.size() - 1);
 				break;
 			case "➡":
-				this.page += (double) pages.size() / 5.0;
+				this.page += 5;
 				this.page = Math.min(page, pages.size() - 1);
 				break;
 			case "⏩":
@@ -75,7 +77,7 @@ public abstract class Pageable<T> extends ListenerAdapter implements List<T> {
 				this.page = Math.max(page - 1, 0);
 				break;
 			case "⬅":
-				this.page -= (double) pages.size() / 5.0;
+				this.page -= 5;
 				this.page = Math.max(page, 0);
 				break;
 			case "⏪":

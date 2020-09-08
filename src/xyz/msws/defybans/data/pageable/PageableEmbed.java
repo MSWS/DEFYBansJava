@@ -13,8 +13,6 @@ public class PageableEmbed extends Pageable<MessageEmbed> {
 
 	private PageableEmbed(Client client) {
 		super(client);
-		this.client = client;
-		client.getJDA().addEventListener(this);
 	}
 
 	public PageableEmbed(Client client, List<MessageEmbed> pages) {
@@ -62,9 +60,9 @@ public class PageableEmbed extends Pageable<MessageEmbed> {
 					m.addReaction("◀").queue();
 					if (this.page > 1) {
 						m.addReaction("⬅").queue();
+						if (this.page > 5)
+							m.addReaction("⏪").queue();
 					}
-					if (this.page > 5)
-						m.addReaction("⏪").queue();
 				}
 
 				if (this.page < pages.size() - 1) {
@@ -75,7 +73,6 @@ public class PageableEmbed extends Pageable<MessageEmbed> {
 							m.addReaction("⏩").queue();
 					}
 				}
-
 			});
 			return;
 		}
@@ -87,9 +84,9 @@ public class PageableEmbed extends Pageable<MessageEmbed> {
 				m.addReaction("◀").queue();
 				if (this.page > 1) {
 					m.addReaction("⬅").queue();
+					if (this.page > 5)
+						m.addReaction("⏪").queue();
 				}
-				if (this.page > 5)
-					m.addReaction("⏪").queue();
 			}
 
 			m.addReaction("❌").queue();
