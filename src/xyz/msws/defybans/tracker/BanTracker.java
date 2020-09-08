@@ -12,11 +12,11 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import xyz.msws.defybans.data.Punishment;
-import xyz.msws.defybans.data.Punishment.Key;
-import xyz.msws.defybans.data.Punishment.Type;
-import xyz.msws.defybans.data.PunishmentBuilder;
-import xyz.msws.defybans.data.PunishmentTracker;
+import xyz.msws.defybans.data.punishment.Punishment;
+import xyz.msws.defybans.data.punishment.PunishmentBuilder;
+import xyz.msws.defybans.data.punishment.PunishmentTracker;
+import xyz.msws.defybans.data.punishment.Punishment.Key;
+import xyz.msws.defybans.data.punishment.Punishment.Type;
 
 public class BanTracker extends Timer {
 

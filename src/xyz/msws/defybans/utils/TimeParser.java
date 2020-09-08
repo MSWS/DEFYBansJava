@@ -7,6 +7,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.commons.lang3.text.WordUtils;
 import org.junit.Test;
 
 public class TimeParser {
@@ -45,15 +46,21 @@ public class TimeParser {
 	}
 
 	public static String getDurationDescription(long seconds) {
-		for (TimeUnit unit : TimeUnit.values()) {
-			if (unit.getSeconds() >= seconds) {
-				return String.format("%.2f %s", seconds / (double) unit.getSeconds(), unit.toString());
-			}
-		}
-		return String.format("%.2f %s", seconds / (double) TimeUnit.YEARS.getSeconds(), TimeUnit.YEARS.toString());
+		return getDurationDescription(seconds, 2);
 	}
 
-	private enum TimeUnit {
+	public static String getDurationDescription(long seconds, int precision) {
+		for (TimeUnit unit : TimeUnit.values()) {
+			if (unit.getSeconds() >= seconds) {
+				return WordUtils.capitalizeFully(String.format("%." + precision + "f %s",
+						seconds / (double) unit.getSeconds(), unit.toString()));
+			}
+		}
+		return WordUtils.capitalizeFully(String.format("%." + precision + "f %s",
+				seconds / (double) TimeUnit.YEARS.getSeconds(), TimeUnit.YEARS.toString()));
+	}
+
+	public enum TimeUnit {
 		SECONDS(1, "s"), MINUTES(60, "m"), HOURS(60 * 60, "h"), DAYS(60 * 60 * 24, "d"), WEEKS(60 * 60 * 24 * 7, "wk"),
 		MONTHS(60 * 60 * 24 * 7 * 4, "mo"), YEARS(60 * 60 * 24 * 7 * 4 * 12, "y");
 
@@ -111,7 +118,6 @@ public class TimeParser {
 	@Test
 	public void testDurationDescription() {
 		long seconds = 60;
-		System.out.println(getDurationDescription(seconds));
-		assertEquals(getDurationDescription(seconds), "1.00 MINUTES");
+		assertEquals("1.00 Minutes", getDurationDescription(seconds));
 	}
 }

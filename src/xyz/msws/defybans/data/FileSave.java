@@ -6,14 +6,15 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+
+import xyz.msws.defybans.data.punishment.Punishment;
 
 public class FileSave implements Save {
 
 	private File file;
-	private List<Punishment> data = new ArrayList<>();
+	private Set<Punishment> data = new HashSet<>();
 
 	public FileSave(File file) {
 		this.file = file;
@@ -67,7 +68,7 @@ public class FileSave implements Save {
 	}
 
 	@Override
-	public void queryPunishments(Callback<Collection<Punishment>> result) {
+	public void queryPunishments(Callback<Set<Punishment>> result) {
 		result.execute(getPunishments());
 	}
 
@@ -75,7 +76,7 @@ public class FileSave implements Save {
 	 * @deprecated
 	 */
 	@Override
-	public Collection<Punishment> getPunishments() {
+	public Set<Punishment> getPunishments() {
 		return data;
 	}
 

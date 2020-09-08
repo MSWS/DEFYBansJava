@@ -1,9 +1,9 @@
-package xyz.msws.defybans.data;
+package xyz.msws.defybans.data.punishment;
 
 import java.util.EnumMap;
 import java.util.EnumSet;
 
-import xyz.msws.defybans.data.Punishment.Key;
+import xyz.msws.defybans.data.punishment.Punishment.Key;
 
 public class PunishmentBuilder {
 	private EnumMap<Key, Object> data;

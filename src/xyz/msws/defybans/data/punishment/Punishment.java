@@ -1,4 +1,4 @@
-package xyz.msws.defybans.data;
+package xyz.msws.defybans.data.punishment;
 
 import java.awt.Color;
 import java.util.EnumMap;
@@ -10,12 +10,12 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.apache.commons.lang3.text.WordUtils;
 import org.json.JSONObject;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.utils.MarkdownSanitizer;
-import xyz.msws.defybans.utils.StringUtils;
 import xyz.msws.defybans.utils.TimeParser;
 
 /**
@@ -88,7 +88,7 @@ public class Punishment {
 		builder.setTitle(
 				String.format("%s'%s %s", data.get(Key.USERNAME),
 						get(Key.USERNAME, String.class).toLowerCase().endsWith("s") ? "" : "s",
-						StringUtils.toUpperCase(get(Key.TYPE).toString())),
+						WordUtils.capitalize(get(Key.TYPE).toString())),
 				String.format("https://bans.defyclan.com/index.php?p=banlist&searchText=%s&Submit", get(Key.STEAMID)));
 
 		builder.setDescription(MarkdownSanitizer.escape(get(Key.REASON, String.class)));

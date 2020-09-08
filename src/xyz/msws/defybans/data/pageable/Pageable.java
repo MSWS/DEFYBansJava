@@ -1,11 +1,10 @@
 package xyz.msws.defybans.data.pageable;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -13,112 +12,60 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEve
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import xyz.msws.defybans.Client;
 
-public class Pageable extends ListenerAdapter {
+public abstract class Pageable<T> extends ListenerAdapter implements List<T> {
+	protected List<T> pages;
+	protected int page;
+	protected Client client;
+	protected User member;
+	protected long id;
 
-	private User member;
-//	private Client client;
-
-	private List<Message> pages;
-
-	private int page = 0;
-	private long id;
-
-	public Pageable(Client client, List<Message> pages) {
+	public Pageable(Client client) {
+		this.client = client;
 		client.getJDA().addEventListener(this);
-		this.pages = pages;
-	}
-
-	public Pageable(Client client, Message... msgs) {
-		client.getJDA().addEventListener(this);
-		this.pages = new ArrayList<>();
-		Collections.addAll(pages, msgs);
-	}
-
-	public Pageable(Client client, String... pages) {
-		client.getJDA().addEventListener(this);
-		this.pages = new ArrayList<>();
-		for (String s : pages)
-			addPage(s);
 	}
 
 	public void bindTo(User member) {
 		this.member = member;
 	}
 
-	public void addPage(Message message) {
-		pages.add(message);
+	public User getBoundTo() {
+		return member;
 	}
 
-	public void addPage(String text) {
-		Message msg = new MessageBuilder(text).build();
-		pages.add(msg);
-	}
+	public abstract void send(TextChannel channel, int page);
 
 	public void send(TextChannel channel) {
-		send(channel, page);
-	}
-
-	public void send(TextChannel channel, int page) {
-		if (this.id != 0) {
-			channel.editMessageById(id, pages.get(page)).queue();
-			return;
-		}
-
-		this.page = page;
-		channel.sendMessage(pages.get(page)).queue(m -> {
-			this.id = m.getIdLong();
-			if (this.page > 0) {
-				m.addReaction("◀").queue();
-				if (this.page > 1) {
-					m.addReaction("⬅").queue();
-				}
-				if (this.page > 20)
-					m.addReaction("⏪").queue();
-			}
-
-			if (this.page < pages.size() - 1) {
-				m.addReaction("▶").queue();
-				if (this.page < pages.size() - 2) {
-					m.addReaction("➡").queue();
-					if (this.page < pages.size() - 20)
-						m.addReaction("⏩").queue();
-				}
-			}
-
-//			for (char c : "⏪⬅◀▶➡⏩".toCharArray())
-//				m.addReaction(c + "").queue();
-		});
+		send(channel, this.page);
 	}
 
 	@Override
 	public void onGuildMessageReactionAdd(GuildMessageReactionAddEvent event) {
 		ReactionEmote react = event.getReactionEmote();
+		if (event.getUserIdLong() == client.getJDA().getSelfUser().getIdLong())
+			return;
+		if (event.getMessageIdLong() != this.id)
+			return;
 		if (member != null && event.getMember().getIdLong() != member.getIdLong()) {
 			if (react.isEmote()) {
-				event.retrieveMessage().map(msg -> msg.removeReaction(react.getEmote(), event.getMember().getUser()))
-						.queue();
+				event.retrieveMessage().queue(msg -> msg.removeReaction(react.getEmoji(), event.getUser()).queue());
 			} else {
-				event.retrieveMessage().map(msg -> msg.removeReaction(react.getEmoji(), event.getMember().getUser()))
-						.queue();
+				event.retrieveMessage().queue(msg -> msg.removeReaction(react.getEmoji(), event.getUser()).queue());
 			}
 			return;
 		}
 
 		if (!react.isEmoji()) {
-			event.retrieveMessage().map(msg -> msg.removeReaction(react.getEmote(), event.getMember().getUser()))
-					.queue();
+			event.retrieveMessage().queue(msg -> msg.removeReaction(react.getEmoji(), event.getUser()).queue());
 			return;
 		}
-//		event.retrieveMessage().map(msg -> msg.removeReaction(react.getEmoji(), event.getMember().getUser())).queue();
-		event.retrieveMessage().map(msg -> msg.removeReaction(react.getAsReactionCode(), event.getUser()));
-//		event.retrieveMessage().
+		event.retrieveMessage().queue(msg -> msg.removeReaction(react.getEmoji(), event.getUser()).queue());
 
 		switch (react.getEmoji()) {
 			case "▶":
 				this.page = Math.min(page + 1, pages.size() - 1);
 				break;
 			case "➡":
-				this.page += (double) pages.size() / (double) 10;
+				this.page += (double) pages.size() / 5.0;
 				this.page = Math.min(page, pages.size() - 1);
 				break;
 			case "⏩":
@@ -128,17 +75,146 @@ public class Pageable extends ListenerAdapter {
 				this.page = Math.max(page - 1, 0);
 				break;
 			case "⬅":
-				this.page -= pages.size() / 10;
+				this.page -= (double) pages.size() / 5.0;
 				this.page = Math.max(page, 0);
 				break;
 			case "⏪":
 				this.page = 0;
 				break;
+			case "❌":
+				event.retrieveMessage().queue(m -> m.delete().queue());
+				return;
 			default:
 				System.out.println("Unknown emoji: " + react.getEmoji());
 				return;
 		}
 		send(event.getChannel());
+	}
+
+	public int getPage() {
+		return page;
+	}
+
+	public boolean setPage(int page) {
+		if (page < 0 || page >= pages.size())
+			return false;
+		this.page = page;
+		return true;
+	}
+
+	@Override
+	public int size() {
+		return pages.size();
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return pages.isEmpty();
+	}
+
+	@Override
+	public boolean contains(Object o) {
+		return pages.contains(o);
+	}
+
+	@Override
+	public Iterator<T> iterator() {
+		return pages.iterator();
+	}
+
+	@Override
+	public Object[] toArray() {
+		return pages.toArray();
+	}
+
+	@Override
+	public <Ot> Ot[] toArray(Ot[] a) {
+		return pages.toArray(a);
+	}
+
+	@Override
+	public boolean add(T e) {
+		return pages.add(e);
+	}
+
+	@Override
+	public boolean remove(Object o) {
+		return pages.remove(o);
+	}
+
+	@Override
+	public boolean containsAll(Collection<?> c) {
+		return pages.containsAll(c);
+	}
+
+	@Override
+	public boolean addAll(Collection<? extends T> c) {
+		return pages.addAll(c);
+	}
+
+	@Override
+	public boolean addAll(int index, Collection<? extends T> c) {
+		return pages.addAll(index, c);
+	}
+
+	@Override
+	public boolean removeAll(Collection<?> c) {
+		return pages.removeAll(c);
+	}
+
+	@Override
+	public boolean retainAll(Collection<?> c) {
+		return pages.retainAll(c);
+	}
+
+	@Override
+	public void clear() {
+		pages.clear();
+	}
+
+	@Override
+	public T get(int index) {
+		return pages.get(index);
+	}
+
+	@Override
+	public T set(int index, T element) {
+		return pages.set(index, element);
+	}
+
+	@Override
+	public void add(int index, T element) {
+		pages.add(index, element);
+	}
+
+	@Override
+	public T remove(int index) {
+		return pages.remove(index);
+	}
+
+	@Override
+	public int indexOf(Object o) {
+		return pages.indexOf(o);
+	}
+
+	@Override
+	public int lastIndexOf(Object o) {
+		return pages.lastIndexOf(o);
+	}
+
+	@Override
+	public ListIterator<T> listIterator() {
+		return pages.listIterator();
+	}
+
+	@Override
+	public ListIterator<T> listIterator(int index) {
+		return pages.listIterator(index);
+	}
+
+	@Override
+	public List<T> subList(int fromIndex, int toIndex) {
+		return pages.subList(fromIndex, toIndex);
 	}
 
 }

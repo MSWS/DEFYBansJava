@@ -1,19 +1,21 @@
 package xyz.msws.defybans.data;
 
-import java.util.Collection;
+import java.util.Set;
+
+import xyz.msws.defybans.data.punishment.Punishment;
 
 public interface Save {
 	void save();
 
 	void load();
 
-	void queryPunishments(Callback<Collection<Punishment>> result);
+	void queryPunishments(Callback<Set<Punishment>> result);
 
 	/**
 	 * @deprecated
 	 * @return
 	 */
-	Collection<Punishment> getPunishments();
+	Set<Punishment> getPunishments();
 
 	default void addPunishment(Punishment p) {
 		addPunishment(p, false);

@@ -1,7 +1,8 @@
 package xyz.msws.defybans.utils;
 
 public class StringUtils {
-	public static String toUpperCase(String str) {
+	@Deprecated
+	public static String title(String str) {
 		StringBuilder builder = new StringBuilder();
 		for (String s : str.split(" ")) {
 			if (s.isEmpty() || s.length() == 1)

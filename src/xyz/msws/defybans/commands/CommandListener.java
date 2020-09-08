@@ -21,6 +21,10 @@ public class CommandListener extends ListenerAdapter {
 		return commands.add(command);
 	}
 
+	public boolean unregisterCommand(AbstractCommand command) {
+		return commands.remove(command);
+	}
+
 	public boolean isCommandRegistered(AbstractCommand command) {
 		return commands.contains(command);
 	}
@@ -49,7 +53,8 @@ public class CommandListener extends ListenerAdapter {
 					|| cmd.getAliases().contains(msg.split(" ")[0].toLowerCase())) {
 				if (!cmd.checkPermission(message))
 					break;
-				cmd.execute(message, msg.contains(" ") ? msg.substring(msg.indexOf(" ")).split(" ") : new String[0]);
+				cmd.execute(message,
+						msg.contains(" ") ? msg.substring(msg.indexOf(" ") + 1).split(" ") : new String[0]);
 				break;
 			}
 		}
