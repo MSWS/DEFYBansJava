@@ -26,6 +26,8 @@ public class ListBansCommand extends AbstractCommand {
 		if ((assigner = client.getModule(GuildTrackAssigner.class)) == null)
 			client.getCommandListener().unregisterCommand(this);
 		setAliases("lb", "getbans", "search");
+		setDescription("List bans by criteria");
+		setUsage("[id]: [regex]\\n...");
 	}
 
 	@Override

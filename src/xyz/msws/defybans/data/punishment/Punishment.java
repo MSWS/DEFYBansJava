@@ -30,25 +30,39 @@ public class Punishment {
 	}
 
 	public enum Key {
-		TYPE("Type"), USERNAME("Player"), STEAMID("Steam ID"), STEAM3("Steam3 ID"), STEAMCOM("Steam Community"),
-		DATE("Invoked on"), DURATION("Banlength"), UNBANREASON("Unban reason"), UNBANADMIN("Unbanned by Admin"),
-		EXPIRES("Expires on"), REASON("Reason"), ADMIN("Banned by Admin"), SERVER("Banned from"), TOTAL("Total Bans"),
-		BLOCKS("Blocked");
+		TYPE("Type"), USERNAME("Player", "name", "target"), STEAMID("Steam ID", "steam", "id"),
+		STEAM3("Steam3 ID", "steam3", "s3"), STEAMCOM("Steam Community", "commid", "community", "steamcom"),
+		DATE("Invoked on", "date", "invoked"), DURATION("Banlength", "length", "duration"), UNBANREASON("Unban reason"),
+		UNBANADMIN("Unbanned by Admin", "unbanner", "Unban admin"), EXPIRES("Expires on", "expires", "expiration"),
+		REASON("Reason"), ADMIN("Banned by Admin", "admin", "banner"), SERVER("Banned from", "server"),
+		TOTAL("Total Bans", "total"), BLOCKS("Blocked", "blocks");
 
 		private String id;
+		private String[] aliases;
 
-		Key(String id) {
+		Key(String id, String... aliases) {
 			this.id = id;
+			this.aliases = aliases;
 		}
 
 		public String getId() {
 			return id;
 		}
 
+		public String[] getAliases() {
+			return aliases;
+		}
+
 		public static Key fromString(String id) {
-			for (Key k : Key.values())
-				if (k.getId().equals(id))
+			for (Key k : Key.values()) {
+				if (k.getId().replace(" ", "").equalsIgnoreCase(id.replace(" ", "")))
 					return k;
+				for (String s : k.getAliases()) {
+					if (id.replace(" ", "").equalsIgnoreCase(s))
+						return k;
+				}
+			}
+
 			return null;
 		}
 	}
@@ -81,7 +95,7 @@ public class Punishment {
 		}
 	}
 
-	private EnumSet<Key> ignore = EnumSet.of(Key.TYPE, Key.REASON);
+	private static EnumSet<Key> ignore = EnumSet.of(Key.TYPE, Key.REASON, Key.SERVER);
 
 	public MessageEmbed createEmbed() {
 		return createEmbed(null);
