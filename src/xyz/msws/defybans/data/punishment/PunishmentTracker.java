@@ -55,6 +55,7 @@ public class PunishmentTracker {
 
 		this.channel.sendMessage(punish.createEmbed(old)).queue();
 		punishments.remove(old);
+		data.deletePunishment(old);
 		punishments.add(punish);
 		data.addPunishment(punish, true);
 	}

@@ -57,6 +57,7 @@ public class CommandListener extends ListenerAdapter {
 					|| cmd.getAliases().contains(msg.split(" ")[0].toLowerCase())) {
 				if (!cmd.checkPermission(message))
 					break;
+				message.getTextChannel().sendTyping();
 				cmd.execute(message,
 						msg.contains(" ") ? msg.substring(msg.indexOf(" ") + 1).split(" ") : new String[0]);
 				break;
