@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -47,7 +48,7 @@ public class ListBansCommand extends AbstractCommand {
 
 		PunishmentTracker tracker = assigner.getTracker(message.getGuild());
 
-		EnumMap<Key, Object> filters = new EnumMap<>(Key.class);
+		EnumMap<Key, Pattern> filters = new EnumMap<>(Key.class);
 		List<String> unknown = new ArrayList<>();
 		for (String msg : String.join(" ", args).split("\n")) {
 			Key key = Key.fromString(msg.split(":")[0]);
@@ -56,7 +57,7 @@ public class ListBansCommand extends AbstractCommand {
 				continue;
 			}
 
-			filters.put(key, msg.substring(msg.indexOf(":") + 2));
+			filters.put(key, Pattern.compile(msg.substring(msg.indexOf(":") + 2)));
 		}
 
 		List<Punishment> ps = new ArrayList<>(tracker.getPunishmentsRegex(filters));

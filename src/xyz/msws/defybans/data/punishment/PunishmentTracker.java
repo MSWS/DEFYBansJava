@@ -14,7 +14,6 @@ import xyz.msws.defybans.data.Save;
 import xyz.msws.defybans.data.punishment.Punishment.Key;
 
 public class PunishmentTracker {
-//	private Map<String, Set<Punishment>> punishments = new HashMap<>();
 	private Set<Punishment> punishments = new HashSet<>();
 
 	private Save data;
@@ -55,7 +54,7 @@ public class PunishmentTracker {
 			return;
 
 		this.channel.sendMessage(punish.createEmbed(old)).queue();
-		punishments.remove(punish);
+		punishments.remove(old);
 		punishments.add(punish);
 		data.addPunishment(punish, true);
 	}
@@ -85,16 +84,15 @@ public class PunishmentTracker {
 		return result;
 	}
 
-	public Set<Punishment> getPunishmentsRegex(EnumMap<Key, Object> filters) {
+	public Set<Punishment> getPunishmentsRegex(EnumMap<Key, Pattern> filters) {
 		Set<Punishment> result = new HashSet<>(punishments);
 
-		for (Entry<Key, Object> entry : filters.entrySet()) {
+		for (Entry<Key, Pattern> entry : filters.entrySet()) {
 			Iterator<Punishment> it = result.iterator();
 			while (it.hasNext()) {
 				Punishment p = it.next();
 				String value = p.get(entry.getKey(), String.class);
-
-				if (!Pattern.matches((String) entry.getValue(), value))
+				if (!entry.getValue().matcher(value).find())
 					it.remove();
 			}
 		}

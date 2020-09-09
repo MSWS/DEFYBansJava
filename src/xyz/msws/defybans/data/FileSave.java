@@ -55,6 +55,7 @@ public class FileSave implements Save {
 					try {
 						data.add(new Punishment(s));
 					} catch (JSONException e) {
+						System.out.println("Input: " + s);
 						e.printStackTrace();
 					}
 				}

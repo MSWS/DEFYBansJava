@@ -45,7 +45,7 @@ public class Main {
 			e.printStackTrace();
 		}
 
-		DEFYBansClient client = new DEFYBansClient(token);
+		SourceModBans client = new SourceModBans(token);
 		client.start();
 	}
 }

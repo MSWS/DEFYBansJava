@@ -20,7 +20,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.utils.MarkdownSanitizer;
-import xyz.msws.defybans.DEFYBansClient;
+import xyz.msws.defybans.SourceModBans;
 import xyz.msws.defybans.data.pageable.PageableEmbed;
 import xyz.msws.defybans.data.punishment.Punishment;
 import xyz.msws.defybans.data.punishment.Punishment.Key;
@@ -33,7 +33,7 @@ public class BanStatsCommand extends AbstractCommand {
 
 	private GuildTrackAssigner assigner;
 
-	public BanStatsCommand(DEFYBansClient client, String name) {
+	public BanStatsCommand(SourceModBans client, String name) {
 		super(client, name);
 		if ((assigner = client.getModule(GuildTrackAssigner.class)) == null)
 			client.getCommandListener().unregisterCommand(this);

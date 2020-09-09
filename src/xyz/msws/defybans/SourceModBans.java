@@ -10,18 +10,19 @@ import xyz.msws.defybans.commands.HelpCommand;
 import xyz.msws.defybans.commands.InfoCommand;
 import xyz.msws.defybans.commands.ListBansCommand;
 import xyz.msws.defybans.commands.PingCommand;
+import xyz.msws.defybans.commands.TestRegexCommand;
 import xyz.msws.defybans.commands.UptimeCommand;
 import xyz.msws.defybans.tracker.GuildTrackAssigner;
 
-public class DEFYBansClient extends Client {
+public class SourceModBans extends Client {
 
-	public DEFYBansClient(String token) {
+	public SourceModBans(String token) {
 		super(token);
 	}
 
 	@Override
 	public String getName() {
-		return "DEFYBans";
+		return "SourceMod Bans";
 	}
 
 	@Override
@@ -42,6 +43,7 @@ public class DEFYBansClient extends Client {
 			commands.registerCommand(new UptimeCommand(this, "uptime"));
 			commands.registerCommand(new DeleteBanCommand(this, "deletebans"));
 			commands.registerCommand(new InfoCommand(this, "info"));
+			commands.registerCommand(new TestRegexCommand(this, "testregex"));
 			commands.registerCommand(new HelpCommand(this, "help"));
 
 		} catch (LoginException | InterruptedException e) {

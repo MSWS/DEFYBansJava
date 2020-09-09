@@ -48,6 +48,7 @@ public abstract class Client {
 	 * Initiates a shutdown
 	 */
 	public void shutdown() {
+		modules.forEach(Module::unload);
 		jda.shutdown();
 	}
 

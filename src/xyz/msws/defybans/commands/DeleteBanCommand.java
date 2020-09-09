@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -82,7 +83,8 @@ public class DeleteBanCommand extends AbstractCommand {
 			}
 
 			if (punish == null) {
-				message.getChannel().sendMessageFormat("A punishment could not be found with the %d hash.", hash);
+				message.getChannel().sendMessageFormat("A punishment could not be found with the %d hash.", hash)
+						.queue();
 				return;
 			}
 
@@ -91,7 +93,7 @@ public class DeleteBanCommand extends AbstractCommand {
 			return;
 		}
 
-		EnumMap<Key, Object> filters = new EnumMap<>(Key.class);
+		EnumMap<Key, Pattern> filters = new EnumMap<>(Key.class);
 		List<String> unknown = new ArrayList<>();
 		for (String msg : String.join(" ", args).split("\n")) {
 			Key key = Key.fromString(msg.split(":")[0]);
@@ -100,7 +102,7 @@ public class DeleteBanCommand extends AbstractCommand {
 				continue;
 			}
 
-			filters.put(key, msg.substring(msg.indexOf(":") + 2));
+			filters.put(key, Pattern.compile(msg.substring(msg.indexOf(":") + 2)));
 		}
 
 		List<Punishment> ps = new ArrayList<>(tracker.getPunishmentsRegex(filters));

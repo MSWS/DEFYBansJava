@@ -92,7 +92,7 @@ public class Punishment {
 		builder.setTitle(
 				String.format("%s'%s %s", data.get(Key.USERNAME),
 						get(Key.USERNAME, String.class).toLowerCase().endsWith("s") ? "" : "s",
-						WordUtils.capitalize(get(Key.TYPE).toString())),
+						WordUtils.capitalizeFully(get(Key.TYPE).toString())),
 				String.format("https://bans.defyclan.com/index.php?p=banlist&searchText=%s&Submit", get(Key.STEAMID)));
 
 		builder.setDescription(MarkdownSanitizer.escape(get(Key.REASON, String.class)));
