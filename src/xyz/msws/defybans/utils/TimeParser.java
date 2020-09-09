@@ -50,11 +50,12 @@ public class TimeParser {
 	}
 
 	public static String getDurationDescription(long seconds, int precision) {
-		for (TimeUnit unit : TimeUnit.values()) {
-			if (unit.getSeconds() >= seconds) {
-				return WordUtils.capitalizeFully(String.format("%." + precision + "f %s",
-						seconds / (double) unit.getSeconds(), unit.toString()));
-			}
+		for (int i = 0; i < TimeUnit.values().length - 1; i++) {
+			TimeUnit c = TimeUnit.values()[i], n = TimeUnit.values()[i + 1];
+			if (c.getSeconds() <= seconds && n.getSeconds() > seconds)
+				return WordUtils.capitalizeFully(
+						String.format("%." + precision + "f %s", seconds / (double) c.getSeconds(), c.toString()));
+
 		}
 		return WordUtils.capitalizeFully(String.format("%." + precision + "f %s",
 				seconds / (double) TimeUnit.YEARS.getSeconds(), TimeUnit.YEARS.toString()));
