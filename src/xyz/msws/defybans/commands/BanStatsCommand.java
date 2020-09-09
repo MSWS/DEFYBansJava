@@ -38,7 +38,7 @@ public class BanStatsCommand extends AbstractCommand {
 		if ((assigner = client.getModule(GuildTrackAssigner.class)) == null)
 			client.getCommandListener().unregisterCommand(this);
 		setAliases("bs");
-		setDescription("Views specific ban statistics");
+		setDescription("Views specific punishment statistics");
 		setUsage("<identifier/admin>");
 	}
 
@@ -54,7 +54,7 @@ public class BanStatsCommand extends AbstractCommand {
 			builder.setTitle("Punishment Statistics for " + message.getGuild().getName());
 			builder.setAuthor("MSWS", "https://github.com/MSWS", "https://i.imgur.com/weIiWIz.png");
 			builder.setColor(new Color(255, 0, 0));
-			builder.appendDescription("**Bans Within**:\n");
+			builder.appendDescription("**Punishments Within**:\n");
 			builder.setFooter(
 					"Requested by " + message.getAuthor().getAsTag() + "\nSourceMod Bans Tracker created by MSWS");
 
@@ -214,6 +214,8 @@ public class BanStatsCommand extends AbstractCommand {
 	private List<String> rankList(Collection<Punishment> ps, Key id) {
 		Map<String, Integer> rank = new HashMap<>();
 		for (Punishment p : ps) {
+			if (!p.getData().containsKey(id))
+				continue;
 			rank.put(p.get(id, String.class), rank.getOrDefault(p.get(id, String.class), 0) + 1);
 		}
 
