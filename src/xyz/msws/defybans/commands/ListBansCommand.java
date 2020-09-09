@@ -69,11 +69,15 @@ public class ListBansCommand extends AbstractCommand {
 			e = new EmbedBuilder(e).setFooter(i + 1 + " of " + ps.size()).build();
 			embeds.add(e);
 		}
-//		ps.forEach(p -> embeds.add(p.createEmbed()));
 
 		if (!unknown.isEmpty())
-			message.getChannel().sendMessage("Unknown regex: " + MarkdownSanitizer.escape(String.join("\n", unknown)))
+			message.getChannel()
+					.sendMessage("Unknown identifier: \n" + MarkdownSanitizer.escape(String.join("\n", unknown)))
 					.queue();
+		if (filters.isEmpty()) {
+			message.getChannel().sendMessage("No valid filters were given.").queue();
+			return;
+		}
 
 		if (embeds.isEmpty()) {
 			message.getChannel().sendMessage(

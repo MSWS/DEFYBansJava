@@ -42,6 +42,7 @@ public class CommandListener extends ListenerAdapter {
 		if (event.getAuthor().getIdLong() == client.getJDA().getSelfUser().getIdLong())
 			return;
 		Message message = event.getMessage();
+		
 
 		if (!message.getContentDisplay().toLowerCase().startsWith(client.getPrefix().toLowerCase())
 				&& !message.getContentDisplay().startsWith("@" + client.getJDA().getSelfUser().getName()))

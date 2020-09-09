@@ -1,9 +1,12 @@
 package xyz.msws.defybans;
 
+import java.util.ArrayList;
+
 import javax.security.auth.login.LoginException;
 
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import xyz.msws.defybans.commands.BanStatsCommand;
 import xyz.msws.defybans.commands.DeleteBanCommand;
 import xyz.msws.defybans.commands.HelpCommand;
@@ -36,6 +39,7 @@ public class SourceModBans extends Client {
 
 			jda.addEventListener(commands);
 			jda.getPresence().setActivity(Activity.watching("SourceMod Bans"));
+			MessageAction.setDefaultMentions(new ArrayList<>());
 
 			commands.registerCommand(new PingCommand(this, "ping"));
 			commands.registerCommand(new BanStatsCommand(this, "banstats"));

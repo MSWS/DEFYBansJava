@@ -58,7 +58,7 @@ public class Punishment {
 				if (k.getId().replace(" ", "").equalsIgnoreCase(id.replace(" ", "")))
 					return k;
 				for (String s : k.getAliases()) {
-					if (id.replace(" ", "").equalsIgnoreCase(s))
+					if (id.replace(" ", "").equalsIgnoreCase(s.replace(" ", "")))
 						return k;
 				}
 			}
