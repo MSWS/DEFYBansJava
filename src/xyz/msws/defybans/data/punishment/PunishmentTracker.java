@@ -92,6 +92,10 @@ public class PunishmentTracker {
 			Iterator<Punishment> it = result.iterator();
 			while (it.hasNext()) {
 				Punishment p = it.next();
+				if (!p.getData().containsKey(entry.getKey())) {
+					it.remove();
+					continue;
+				}
 				String value = p.get(entry.getKey(), String.class);
 				if (!entry.getValue().matcher(value).find())
 					it.remove();
