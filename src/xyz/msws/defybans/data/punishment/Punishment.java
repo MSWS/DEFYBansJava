@@ -133,8 +133,8 @@ public class Punishment {
 						"[None] -> " + MarkdownSanitizer.escape(entry.getValue().toString()), true);
 				continue;
 			}
-			if (ignore.contains(entry.getKey()))
-				continue;
+//			if (ignore.contains(entry.getKey()))
+//				continue;
 			if (old.getData().get(entry.getKey()).equals(entry.getValue()))
 				continue;
 			builder.addField(entry.getKey().getId(),

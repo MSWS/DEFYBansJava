@@ -150,6 +150,8 @@ public class BanStatsCommand extends AbstractCommand {
 					}
 					i++;
 				}
+				if (!builder.isEmpty())
+					pages.add(builder.build());
 				for (String adm : admins) {
 					builder.appendDescription(adm + "\n");
 					if (i % 7 == 0) {
@@ -160,6 +162,8 @@ public class BanStatsCommand extends AbstractCommand {
 					}
 					i++;
 				}
+				if (!builder.isEmpty())
+					pages.add(builder.build());
 
 				new PageableEmbed(client, pages).bindTo(message.getAuthor()).send(message.getTextChannel());
 				return;
@@ -183,6 +187,8 @@ public class BanStatsCommand extends AbstractCommand {
 				}
 				i++;
 			}
+			if (!builder.isEmpty())
+				pages.add(builder.build());
 
 			new PageableEmbed(client, pages).bindTo(message.getAuthor()).send(message.getTextChannel());
 		}
