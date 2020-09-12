@@ -6,3 +6,4 @@ bin/*
 .classpath
 /bin/
 /target/
+result.png
