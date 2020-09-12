@@ -2,9 +2,6 @@ package xyz.msws.defybans.tracker;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -13,47 +10,19 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import xyz.msws.defybans.data.punishment.Punishment;
-import xyz.msws.defybans.data.punishment.PunishmentBuilder;
-import xyz.msws.defybans.data.punishment.PunishmentTracker;
 import xyz.msws.defybans.data.punishment.Punishment.Key;
 import xyz.msws.defybans.data.punishment.Punishment.Type;
+import xyz.msws.defybans.data.punishment.PunishmentBuilder;
+import xyz.msws.defybans.data.punishment.PunishmentTracker;
 
-public class BanTracker extends Timer {
-
-	private String url;
-	private long refreshRate = TimeUnit.MINUTES.toMillis(1);
-
-	private PunishmentTracker tracker;
+public class BanTracker extends Tracker {
 
 	public BanTracker(String url, PunishmentTracker master) {
-		this.url = url;
-		this.tracker = master;
+		super(url, master);
 	}
 
-	public void setRefreshRate(long rate) {
-		if (rate <= 0)
-			throw new IllegalArgumentException("Rate must be greater than 0");
-		this.refreshRate = rate;
-	}
-
-	public long getRefreshRate() {
-		return refreshRate;
-	}
-
-	public void start() {
-		this.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				BanTracker.this.run();
-			}
-		}, 0, refreshRate);
-	}
-
-	public void parseOnce() {
-		run();
-	}
-
-	public void run() {
+	@Override
+	public void execute() {
 		try {
 			Connection con = Jsoup.connect(url);
 			Document doc = con.get();
@@ -71,7 +40,6 @@ public class BanTracker extends Timer {
 					if (k == null)
 						continue;
 					builder.set(k, values.get(i + 1).text());
-
 				}
 
 				tracker.addPunishment(builder.build());

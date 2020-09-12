@@ -8,8 +8,8 @@ import java.util.Map;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import xyz.msws.defybans.Client;
-import xyz.msws.defybans.data.FileSave;
-import xyz.msws.defybans.data.Save;
+import xyz.msws.defybans.data.FileStorage;
+import xyz.msws.defybans.data.PunishmentStorage;
 import xyz.msws.defybans.data.punishment.PunishmentTracker;
 import xyz.msws.defybans.module.Module;
 
@@ -41,7 +41,7 @@ public class GuildTrackAssigner extends Module {
 			}
 		}
 
-		Save save = new FileSave(data);
+		PunishmentStorage save = new FileStorage(data);
 
 		TextChannel channel = null;
 		for (TextChannel c : g.getTextChannels()) {
@@ -52,14 +52,15 @@ public class GuildTrackAssigner extends Module {
 		}
 		if (channel == null) {
 			g.getSelfMember().modifyNickname("Disabled").queue();
+			g.getOwner().getUser().openPrivateChannel().queue(msg -> {
+				msg.sendMessage("");
+			});
 			return;
 		}
 
 		PunishmentTracker tracker = new PunishmentTracker(channel, save);
 		trackers.put(g.getIdLong(), tracker);
-		BanTracker timer = new BanTracker("https://bans.defyclan.com/index.php?p=banlist", tracker);
-		timer.start();
-
+		tracker.addTracker(new BanTracker("https://bans.defyclan.com/index.php?p=banlist", tracker));
 	}
 
 	@Override

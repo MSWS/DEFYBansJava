@@ -1,40 +1,52 @@
 package xyz.msws.defybans.data.punishment;
 
-import java.time.Duration;
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 import net.dv8tion.jda.api.entities.TextChannel;
 import xyz.msws.defybans.data.Callback;
-import xyz.msws.defybans.data.Save;
+import xyz.msws.defybans.data.PunishmentStorage;
 import xyz.msws.defybans.data.punishment.Punishment.Key;
+import xyz.msws.defybans.tracker.Tracker;
+import xyz.msws.defybans.utils.TimeParser;
 
 public class PunishmentTracker {
 	private Set<Punishment> punishments = new HashSet<>();
 
-	private Save data;
+	private List<Tracker> trackers = new ArrayList<>();
+
+	private PunishmentStorage data;
 	private TextChannel channel;
 
-	public PunishmentTracker(TextChannel channel, Save data) {
+	public PunishmentTracker(TextChannel channel, PunishmentStorage data) {
 		this.data = data;
 		this.channel = channel;
 		data.load();
 
 		data.queryPunishments(new Callback<Set<Punishment>>() {
-			long time = System.currentTimeMillis();
-
 			@Override
 			public void execute(Set<Punishment> call) {
 				call.forEach(p -> register(p));
-				channel.sendMessageFormat("Successfully loaded %d punishments (took %s ms).", call.size(),
-						System.currentTimeMillis() - time).delay(Duration.ofSeconds(10)).flatMap(m -> m.delete())
-						.queue();
+				channel.getManager().setTopic(String.format("Last updated %s Total Bans: %d",
+						TimeParser.getDateDescription(System.currentTimeMillis()), call.size())).queue();
 			}
 		});
+	}
+
+	public void addTracker(Tracker tracker) {
+		if (!tracker.running())
+			tracker.start();
+		trackers.add(tracker);
+	}
+
+	public List<Tracker> getTrackers() {
+		return trackers;
 	}
 
 	private void register(Punishment punish) {
@@ -52,6 +64,9 @@ public class PunishmentTracker {
 
 		if (old != null && old.equals(punish)) // Same duplicate punishment
 			return;
+
+		this.channel.getManager().setTopic(String.format("Last Updated %s Total Bans: %d",
+				TimeParser.getDateDescription(System.currentTimeMillis()), punishments.size())).queue();
 
 		this.channel.sendMessage(punish.createEmbed(old)).queue();
 		punishments.remove(old);

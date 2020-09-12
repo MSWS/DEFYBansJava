@@ -13,6 +13,8 @@ import xyz.msws.defybans.commands.HelpCommand;
 import xyz.msws.defybans.commands.InfoCommand;
 import xyz.msws.defybans.commands.ListBansCommand;
 import xyz.msws.defybans.commands.PingCommand;
+import xyz.msws.defybans.commands.GraphCommand;
+import xyz.msws.defybans.commands.GraphIDCommand;
 import xyz.msws.defybans.commands.TestRegexCommand;
 import xyz.msws.defybans.commands.UptimeCommand;
 import xyz.msws.defybans.tracker.GuildTrackAssigner;
@@ -48,6 +50,8 @@ public class SourceModBans extends Client {
 			commands.registerCommand(new DeleteBanCommand(this, "deletebans"));
 			commands.registerCommand(new InfoCommand(this, "info"));
 			commands.registerCommand(new TestRegexCommand(this, "testregex"));
+			commands.registerCommand(new GraphCommand(this, "graph"));
+			commands.registerCommand(new GraphIDCommand(this, "graphid"));
 			commands.registerCommand(new HelpCommand(this, "help"));
 
 		} catch (LoginException | InterruptedException e) {

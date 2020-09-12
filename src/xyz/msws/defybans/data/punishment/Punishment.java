@@ -24,7 +24,7 @@ import xyz.msws.defybans.utils.TimeParser;
  * @author imodm
  *
  */
-public class Punishment {
+public class Punishment implements Comparable<Punishment> {
 	public enum Type {
 		BAN, MUTE, GAG;
 	}
@@ -127,14 +127,18 @@ public class Punishment {
 			return builder.build();
 		}
 
+		builder.setTitle(
+				String.format("%s'%s %s (Edited)", data.get(Key.USERNAME),
+						get(Key.USERNAME, String.class).toLowerCase().endsWith("s") ? "" : "s",
+						WordUtils.capitalizeFully(get(Key.TYPE).toString())),
+				String.format("https://bans.defyclan.com/index.php?p=banlist&searchText=%s&Submit", get(Key.STEAMID)));
+
 		for (Entry<Key, Object> entry : data.entrySet()) {
 			if (!old.getData().containsKey(entry.getKey()) || old.getData().get(entry.getKey()) == null) {
 				builder.addField(entry.getKey().getId(),
 						"[None] -> " + MarkdownSanitizer.escape(entry.getValue().toString()), true);
 				continue;
 			}
-//			if (ignore.contains(entry.getKey()))
-//				continue;
 			if (old.getData().get(entry.getKey()).equals(entry.getValue()))
 				continue;
 			builder.addField(entry.getKey().getId(),
@@ -294,6 +298,18 @@ public class Punishment {
 			obj.put(values.getKey().getId(), values.getValue().toString());
 		}
 		return obj.toString();
+	}
+
+	@Override
+	public int compareTo(Punishment o) {
+		if (o.getDate() > this.getDate())
+			return -1;
+		if (o.getDate() == this.getDate()) {
+			if (o.getDuration() > this.getDuration())
+				return -1;
+			return 1;
+		}
+		return 1;
 	}
 
 }

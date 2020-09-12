@@ -2,18 +2,13 @@ package xyz.msws.defybans.commands;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
-import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -26,6 +21,7 @@ import xyz.msws.defybans.data.punishment.Punishment;
 import xyz.msws.defybans.data.punishment.Punishment.Key;
 import xyz.msws.defybans.data.punishment.PunishmentTracker;
 import xyz.msws.defybans.tracker.GuildTrackAssigner;
+import xyz.msws.defybans.utils.PunishmentUtils;
 import xyz.msws.defybans.utils.TimeParser;
 import xyz.msws.defybans.utils.TimeParser.TimeUnit;
 
@@ -80,11 +76,13 @@ public class BanStatsCommand extends AbstractCommand {
 			}
 
 			builder.appendDescription("\n**Admin Punishment Count**\n");
-			builder.appendDescription(rank(ps, Key.ADMIN, 5));
+			builder.appendDescription(PunishmentUtils.rank(ps, Key.ADMIN, 5));
 
 			builder.appendDescription("\n\n**Most Common Reasons**\n");
+			builder.appendDescription(PunishmentUtils.rank(ps, Key.REASON, 5));
 
-			builder.appendDescription(rank(ps, Key.REASON, 5));
+			builder.appendDescription(String.format("\n\n**Tracking URLs** (**%d**):\n", tracker.getTrackers().size()));
+			tracker.getTrackers().forEach(t -> builder.appendDescription(MarkdownSanitizer.escape(t.getURL()) + "\n"));
 
 			builder.addField("Total Punishments", ps.size() + "", true);
 			builder.addField("Total Admins", admins.size() + "", true);
@@ -113,11 +111,11 @@ public class BanStatsCommand extends AbstractCommand {
 				builder.setColor(Color.BLUE);
 
 				builder.appendDescription("**Most Common Reasons**\n");
-				builder.appendDescription(rank(values, Key.REASON));
+				builder.appendDescription(PunishmentUtils.rank(values, Key.REASON));
 				builder.appendDescription("\n\n**Most Common Players**\n");
-				builder.appendDescription(rank(values, Key.USERNAME));
+				builder.appendDescription(PunishmentUtils.rank(values, Key.USERNAME));
 				builder.appendDescription("\n\n**Most Common Durations**\n");
-				builder.appendDescription(rank(values, Key.DURATION));
+				builder.appendDescription(PunishmentUtils.rank(values, Key.DURATION));
 
 				builder.addField("Total Bans", values.size() + "", true);
 
@@ -176,7 +174,7 @@ public class BanStatsCommand extends AbstractCommand {
 
 			List<MessageEmbed> pages = new ArrayList<>();
 			int i = 1;
-			for (String line : rankList(ps, key)) {
+			for (String line : PunishmentUtils.rankList(ps, key)) {
 				builder.appendDescription(line + "\n");
 				if (i % 10 == 0) {
 					pages.add(builder.build());
@@ -192,60 +190,6 @@ public class BanStatsCommand extends AbstractCommand {
 
 			new PageableEmbed(client, pages).bindTo(message.getAuthor()).send(message.getTextChannel());
 		}
-	}
-
-	private String rank(Collection<Punishment> ps, Key id) {
-		return rank(ps, id, 5);
-	}
-
-	private String rank(Collection<Punishment> ps, Key id, int size) {
-		Map<String, Integer> rank = new HashMap<>();
-		for (Punishment p : ps) {
-			rank.put(p.get(id, String.class), rank.getOrDefault(p.get(id, String.class), 0) + 1);
-		}
-
-		rank = sortByValue(rank);
-
-		StringJoiner joiner = new StringJoiner("\n");
-		int i = 0;
-		for (Entry<String, Integer> entry : rank.entrySet()) {
-			joiner.add(MarkdownSanitizer.escape(entry.getKey()) + ": " + entry.getValue());
-			i++;
-			if (i >= size)
-				break;
-		}
-		return joiner.toString();
-	}
-
-	private List<String> rankList(Collection<Punishment> ps, Key id) {
-		Map<String, Integer> rank = new HashMap<>();
-		for (Punishment p : ps) {
-			if (!p.getData().containsKey(id))
-				continue;
-			rank.put(p.get(id, String.class), rank.getOrDefault(p.get(id, String.class), 0) + 1);
-		}
-
-		rank = sortByValue(rank);
-
-		List<String> result = new ArrayList<>();
-
-		for (Entry<String, Integer> entry : rank.entrySet())
-			result.add(MarkdownSanitizer.escape(entry.getKey()) + ": " + entry.getValue());
-
-		return result;
-	}
-
-	private <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
-		List<Entry<K, V>> list = new ArrayList<>(map.entrySet());
-		list.sort(Entry.comparingByValue());
-		Collections.reverse(list);
-
-		Map<K, V> result = new LinkedHashMap<>();
-		for (Entry<K, V> entry : list) {
-			result.put(entry.getKey(), entry.getValue());
-		}
-
-		return result;
 	}
 
 }

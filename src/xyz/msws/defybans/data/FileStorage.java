@@ -13,12 +13,12 @@ import org.json.JSONException;
 
 import xyz.msws.defybans.data.punishment.Punishment;
 
-public class FileSave implements Save {
+public class FileStorage implements PunishmentStorage {
 
 	private File file;
 	private Set<Punishment> data = new HashSet<>();
 
-	public FileSave(File file) {
+	public FileStorage(File file) {
 		this.file = file;
 	}
 

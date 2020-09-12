@@ -30,10 +30,11 @@ public class HelpCommand extends AbstractCommand {
 		int i = 1;
 		for (AbstractCommand cmd : client.getCommandListener().getCommands()) {
 			if (cmd.getPermission() != null) {
-				if (!cmd.checkPermission(message))
+				if (!cmd.checkPermission(message, false))
 					continue;
 				builder.appendDescription("(_" + cmd.getPermission().getName() + "_) **" + client.getPrefix()
 						+ cmd.getName() + "** " + cmd.getUsage() + " - " + cmd.getDescription() + "\n");
+				continue;
 			}
 
 			builder.appendDescription("**" + client.getPrefix() + cmd.getName() + "** " + cmd.getUsage() + " - "

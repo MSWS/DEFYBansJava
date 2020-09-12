@@ -12,7 +12,7 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.0</version>
 				<configuration>
-					<release>3.6</release>
+					<release>1.8</release>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -86,11 +86,10 @@
 			<artifactId>commons-lang3</artifactId>
 			<version>3.0</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/oro/oro -->
 		<dependency>
-			<groupId>oro</groupId>
-			<artifactId>oro</artifactId>
-			<version>2.0.8</version>
+			<groupId>org.knowm.xchart</groupId>
+			<artifactId>xchart</artifactId>
+			<version>3.6.5</version>
 		</dependency>
 	</dependencies>
 </project>

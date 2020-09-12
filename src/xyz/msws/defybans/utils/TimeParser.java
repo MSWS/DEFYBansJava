@@ -52,9 +52,15 @@ public class TimeParser {
 	public static String getDurationDescription(long seconds, int precision) {
 		for (int i = 0; i < TimeUnit.values().length - 1; i++) {
 			TimeUnit c = TimeUnit.values()[i], n = TimeUnit.values()[i + 1];
-			if (c.getSeconds() <= seconds && n.getSeconds() > seconds)
+			if (c.getSeconds() <= seconds && n.getSeconds() > seconds) {
+				if ((double) seconds / (double) c.getSeconds() == 1)
+					return WordUtils.capitalizeFully(
+							String.format("1 %s", c.toString().substring(0, c.toString().length() - 1)));
+				if ((double) seconds % (double) c.getSeconds() == 0)
+					return WordUtils.capitalizeFully(String.format("%d %s", seconds / c.getSeconds(), c.toString()));
 				return WordUtils.capitalizeFully(
 						String.format("%." + precision + "f %s", seconds / (double) c.getSeconds(), c.toString()));
+			}
 
 		}
 		return WordUtils.capitalizeFully(String.format("%." + precision + "f %s",
@@ -119,6 +125,6 @@ public class TimeParser {
 	@Test
 	public void testDurationDescription() {
 		long seconds = 60;
-		assertEquals("1.00 Minutes", getDurationDescription(seconds));
+		assertEquals("1 Minute", getDurationDescription(seconds));
 	}
 }

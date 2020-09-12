@@ -8,6 +8,13 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import xyz.msws.defybans.Client;
 
+/**
+ * Represents a command that can be run, @see {@link CommandListener} for how
+ * the execute method is run.
+ * 
+ * @author imodm
+ *
+ */
 public abstract class AbstractCommand {
 
 	protected Client client;
