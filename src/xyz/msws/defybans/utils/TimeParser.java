@@ -89,7 +89,9 @@ public class TimeParser {
 
 		public static TimeUnit fromString(String s) {
 			for (TimeUnit u : TimeUnit.values()) {
-				if (u.getId().equals(s))
+				if (u.getId().equalsIgnoreCase(s))
+					return u;
+				if (s.toLowerCase().startsWith(u.getId()))
 					return u;
 			}
 			return SECONDS;
