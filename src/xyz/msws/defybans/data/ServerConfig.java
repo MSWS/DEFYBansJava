@@ -49,7 +49,6 @@ public class ServerConfig implements Saveable {
 	}
 
 	public void addTracker(JSONObject arr) {
-		System.out.println("adding a tracker");
 		trackers.put(arr);
 	}
 
