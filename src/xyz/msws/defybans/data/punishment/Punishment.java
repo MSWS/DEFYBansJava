@@ -30,12 +30,12 @@ public class Punishment implements Comparable<Punishment> {
 	}
 
 	public enum Key {
-		TYPE("Type"), USERNAME("Player", "name", "target"), STEAMID("Steam ID", "steam", "id"),
+		TYPE("Type"), USERNAME("Player", "name", "target", "username", "user"), STEAMID("Steam ID", "steam", "id"),
 		STEAM3("Steam3 ID", "steam3", "s3"), STEAMCOM("Steam Community", "commid", "community", "steamcom"),
-		DATE("Invoked on", "date", "invoked"), DURATION("Banlength", "length", "duration"), UNBANREASON("Unban reason"),
-		UNBANADMIN("Unbanned by Admin", "unbanner", "Unban admin"), EXPIRES("Expires on", "expires", "expiration"),
-		REASON("Reason"), ADMIN("Banned by Admin", "admin", "banner"), SERVER("Banned from", "server"),
-		TOTAL("Total Bans", "total"), BLOCKS("Blocked", "blocks");
+		DATE("Invoked on", "date", "invoked"), DURATION("Banlength", "length", "duration"),
+		UNBANREASON("Unban reason", "unban"), UNBANADMIN("Unbanned by Admin", "unbanner", "Unban admin"),
+		EXPIRES("Expires on", "expires", "expiration"), REASON("Reason"), ADMIN("Banned by Admin", "admin", "banner"),
+		SERVER("Banned from", "server"), TOTAL("Total Bans", "total"), BLOCKS("Blocked", "blocks"), TRACKER("Tracker");
 
 		private String id;
 		private String[] aliases;
@@ -107,7 +107,7 @@ public class Punishment implements Comparable<Punishment> {
 				String.format("%s'%s %s", data.get(Key.USERNAME),
 						get(Key.USERNAME, String.class).toLowerCase().endsWith("s") ? "" : "s",
 						WordUtils.capitalizeFully(get(Key.TYPE).toString())),
-				String.format("https://bans.defyclan.com/index.php?p=banlist&searchText=%s&Submit", get(Key.STEAMID)));
+				String.format("https://bans.defyclan.com/index.php?p=banlist&searchText=%s&Submit", get(Key.STEAMID))); // TODO
 
 		builder.setDescription(MarkdownSanitizer.escape(get(Key.REASON, String.class)));
 
@@ -131,7 +131,7 @@ public class Punishment implements Comparable<Punishment> {
 				String.format("%s'%s %s (Edited)", data.get(Key.USERNAME),
 						get(Key.USERNAME, String.class).toLowerCase().endsWith("s") ? "" : "s",
 						WordUtils.capitalizeFully(get(Key.TYPE).toString())),
-				String.format("https://bans.defyclan.com/index.php?p=banlist&searchText=%s&Submit", get(Key.STEAMID)));
+				String.format("https://bans.defyclan.com/index.php?p=banlist&searchText=%s&Submit", get(Key.STEAMID))); // TODO
 
 		for (Entry<Key, Object> entry : data.entrySet()) {
 			if (!old.getData().containsKey(entry.getKey()) || old.getData().get(entry.getKey()) == null) {

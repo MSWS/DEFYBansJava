@@ -36,6 +36,8 @@ public class GraphCommand extends AbstractCommand {
 	public GraphCommand(Client client, String name) {
 		super(client, name);
 		setAliases("g");
+		setDescription("Generates a graph of IDs over time");
+		setUsage("[identifier] <timespan>");
 		if ((assigner = client.getModule(GuildTrackAssigner.class)) == null)
 			client.getCommandListener().unregisterCommand(this);
 	}
@@ -91,7 +93,7 @@ public class GraphCommand extends AbstractCommand {
 				.delay(5, TimeUnit.SECONDS).flatMap(m -> m.delete()).queue();
 		round *= 1000;
 
-		List<Punishment> ps = new ArrayList<>(assigner.getTracker(message.getGuild()).getPunishments());
+		List<Punishment> ps = new ArrayList<>(assigner.getManager(message.getGuild()).getPunishments());
 
 		Collections.sort(ps);
 

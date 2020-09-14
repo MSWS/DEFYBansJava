@@ -9,16 +9,34 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import xyz.msws.defybans.data.Callback;
 import xyz.msws.defybans.data.punishment.Punishment;
 import xyz.msws.defybans.data.punishment.Punishment.Key;
 import xyz.msws.defybans.data.punishment.Punishment.Type;
 import xyz.msws.defybans.data.punishment.PunishmentBuilder;
-import xyz.msws.defybans.data.punishment.PunishmentTracker;
+import xyz.msws.defybans.data.punishment.PunishmentManager;
 
 public class BanTracker extends Tracker {
 
-	public BanTracker(String url, PunishmentTracker master) {
-		super(url, master);
+	public BanTracker(String url, PunishmentManager master) {
+		super("Ban", url, master);
+	}
+
+	public void verify(Callback<Boolean> call) {
+		try {
+			Connection con = Jsoup.connect(url);
+			Document doc = con.get();
+
+			Elements tables = doc.getElementsByTag("tbody");
+			if (tables.size() < 5) {
+				call.execute(false);
+				return;
+			}
+			tables.subList(5, tables.size());
+			call.execute(true);
+		} catch (IOException | IndexOutOfBoundsException | IllegalArgumentException e) {
+			call.execute(false);
+		}
 	}
 
 	@Override

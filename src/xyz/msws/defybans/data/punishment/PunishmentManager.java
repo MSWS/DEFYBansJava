@@ -12,11 +12,12 @@ import java.util.regex.Pattern;
 import net.dv8tion.jda.api.entities.TextChannel;
 import xyz.msws.defybans.data.Callback;
 import xyz.msws.defybans.data.PunishmentStorage;
+import xyz.msws.defybans.data.ServerConfig;
 import xyz.msws.defybans.data.punishment.Punishment.Key;
 import xyz.msws.defybans.tracker.Tracker;
 import xyz.msws.defybans.utils.TimeParser;
 
-public class PunishmentTracker {
+public class PunishmentManager {
 	private Set<Punishment> punishments = new HashSet<>();
 
 	private List<Tracker> trackers = new ArrayList<>();
@@ -24,7 +25,7 @@ public class PunishmentTracker {
 	private PunishmentStorage data;
 	private TextChannel channel;
 
-	public PunishmentTracker(TextChannel channel, PunishmentStorage data) {
+	public PunishmentManager(TextChannel channel, PunishmentStorage data) {
 		this.data = data;
 		this.channel = channel;
 		data.load();
@@ -39,10 +40,18 @@ public class PunishmentTracker {
 		});
 	}
 
-	public void addTracker(Tracker tracker) {
+	public void addTracker(Tracker tracker, boolean save) {
 		if (!tracker.running())
 			tracker.start();
 		trackers.add(tracker);
+	}
+
+	public void clearTrackers() {
+		ServerConfig config = new ServerConfig(channel.getGuild().getIdLong());
+		config.clearTrackers();
+		config.save();
+		trackers.forEach(Tracker::cancel);
+		trackers.clear();
 	}
 
 	public List<Tracker> getTrackers() {

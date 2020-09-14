@@ -88,12 +88,12 @@ public class TimeParser {
 		}
 
 		public static TimeUnit fromString(String s) {
-			for (TimeUnit u : TimeUnit.values()) {
+			for (TimeUnit u : TimeUnit.values())
 				if (u.getId().equalsIgnoreCase(s))
 					return u;
+			for (TimeUnit u : TimeUnit.values())
 				if (s.toLowerCase().startsWith(u.getId()))
 					return u;
-			}
 			return SECONDS;
 		}
 	}

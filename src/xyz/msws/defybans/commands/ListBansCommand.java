@@ -14,7 +14,7 @@ import xyz.msws.defybans.Client;
 import xyz.msws.defybans.data.pageable.PageableEmbed;
 import xyz.msws.defybans.data.punishment.Punishment;
 import xyz.msws.defybans.data.punishment.Punishment.Key;
-import xyz.msws.defybans.data.punishment.PunishmentTracker;
+import xyz.msws.defybans.data.punishment.PunishmentManager;
 import xyz.msws.defybans.tracker.GuildTrackAssigner;
 
 public class ListBansCommand extends AbstractCommand {
@@ -48,7 +48,7 @@ public class ListBansCommand extends AbstractCommand {
 			return;
 		}
 
-		PunishmentTracker tracker = assigner.getTracker(message.getGuild());
+		PunishmentManager tracker = assigner.getManager(message.getGuild());
 
 		EnumMap<Key, Pattern> filters = new EnumMap<>(Key.class);
 		List<String> unknown = new ArrayList<>();

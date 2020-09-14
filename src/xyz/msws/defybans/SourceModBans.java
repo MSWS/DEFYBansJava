@@ -7,13 +7,16 @@ import javax.security.auth.login.LoginException;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import xyz.msws.defybans.commands.AddTrackerCommand;
 import xyz.msws.defybans.commands.BanStatsCommand;
+import xyz.msws.defybans.commands.ClearTrackersCommand;
 import xyz.msws.defybans.commands.DeleteBanCommand;
 import xyz.msws.defybans.commands.GraphCommand;
 import xyz.msws.defybans.commands.HelpCommand;
 import xyz.msws.defybans.commands.InfoCommand;
 import xyz.msws.defybans.commands.ListBansCommand;
 import xyz.msws.defybans.commands.PingCommand;
+import xyz.msws.defybans.commands.SetChannelCommand;
 import xyz.msws.defybans.commands.TestRegexCommand;
 import xyz.msws.defybans.commands.UptimeCommand;
 import xyz.msws.defybans.tracker.GuildTrackAssigner;
@@ -50,6 +53,9 @@ public class SourceModBans extends Client {
 			commands.registerCommand(new InfoCommand(this, "info"));
 			commands.registerCommand(new TestRegexCommand(this, "testregex"));
 			commands.registerCommand(new GraphCommand(this, "graph"));
+			commands.registerCommand(new AddTrackerCommand(this, "addtracker"));
+			commands.registerCommand(new SetChannelCommand(this, "setchannel"));
+			commands.registerCommand(new ClearTrackersCommand(this, "cleartrackers"));
 			commands.registerCommand(new HelpCommand(this, "help"));
 
 		} catch (LoginException | InterruptedException e) {

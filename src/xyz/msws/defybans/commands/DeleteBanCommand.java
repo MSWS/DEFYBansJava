@@ -20,7 +20,7 @@ import xyz.msws.defybans.data.pageable.Pageable;
 import xyz.msws.defybans.data.pageable.PageableEmbed;
 import xyz.msws.defybans.data.punishment.Punishment;
 import xyz.msws.defybans.data.punishment.Punishment.Key;
-import xyz.msws.defybans.data.punishment.PunishmentTracker;
+import xyz.msws.defybans.data.punishment.PunishmentManager;
 import xyz.msws.defybans.tracker.GuildTrackAssigner;
 
 public class DeleteBanCommand extends AbstractCommand {
@@ -56,7 +56,7 @@ public class DeleteBanCommand extends AbstractCommand {
 			return;
 		}
 
-		PunishmentTracker tracker = assigner.getTracker(message.getGuild());
+		PunishmentManager tracker = assigner.getManager(message.getGuild());
 
 		if (args.length == 1) {
 			if (!NumberUtils.isNumber(args[0])) {

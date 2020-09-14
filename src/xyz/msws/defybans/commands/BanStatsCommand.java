@@ -19,7 +19,7 @@ import xyz.msws.defybans.SourceModBans;
 import xyz.msws.defybans.data.pageable.PageableEmbed;
 import xyz.msws.defybans.data.punishment.Punishment;
 import xyz.msws.defybans.data.punishment.Punishment.Key;
-import xyz.msws.defybans.data.punishment.PunishmentTracker;
+import xyz.msws.defybans.data.punishment.PunishmentManager;
 import xyz.msws.defybans.tracker.GuildTrackAssigner;
 import xyz.msws.defybans.utils.PunishmentUtils;
 import xyz.msws.defybans.utils.TimeParser;
@@ -40,7 +40,7 @@ public class BanStatsCommand extends AbstractCommand {
 
 	@Override
 	public void execute(Message message, String[] args) {
-		PunishmentTracker tracker = assigner.getTracker(message.getGuild());
+		PunishmentManager tracker = assigner.getManager(message.getGuild());
 		Set<Punishment> ps = tracker.getPunishments();
 		Set<String> admins = new HashSet<>();
 		ps.forEach(p -> admins.add(p.get(Key.ADMIN, String.class).toLowerCase()));

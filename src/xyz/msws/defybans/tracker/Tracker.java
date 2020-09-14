@@ -4,20 +4,30 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
-import xyz.msws.defybans.data.punishment.PunishmentTracker;
+import org.json.JSONObject;
+
+import xyz.msws.defybans.data.Callback;
+import xyz.msws.defybans.data.punishment.PunishmentManager;
 
 public abstract class Tracker extends Timer {
-	protected String url;
-	protected PunishmentTracker tracker;
+	protected String name, url, search;
+	protected PunishmentManager tracker;
 	protected long refreshRate = TimeUnit.MINUTES.toMillis(1);
 	protected boolean running = false;
 
-	public Tracker(String url, PunishmentTracker tracker) {
+	public Tracker(String name, String url, PunishmentManager tracker) {
+		this.name = name;
 		this.url = url;
 		this.tracker = tracker;
 	}
 
+	public abstract void verify(Callback<Boolean> call);
+
 	public String getURL() {
+		return url;
+	}
+
+	public String getName() {
 		return url;
 	}
 
@@ -60,7 +70,11 @@ public abstract class Tracker extends Timer {
 	// TODO
 	@Override
 	public String toString() {
-		return "{\"url\":" + url + "}\"";
+		JSONObject obj = new JSONObject();
+		obj.put("url", url);
+		obj.put("rate", refreshRate);
+		obj.put("search", search);
+		return obj.toString();
 	}
 
 }
