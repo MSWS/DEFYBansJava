@@ -6,9 +6,7 @@ import java.util.Collections;
 
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import xyz.msws.defybans.Client;
 
 public class PageableText extends Pageable<Message> {
@@ -94,8 +92,6 @@ public class PageableText extends Pageable<Message> {
 					m.addReaction("⏪").queue();
 			}
 
-//			m.addReaction("❌").queue();
-
 			if (this.page < pages.size() - 1) {
 				m.addReaction("▶").queue();
 				if (this.page < pages.size() - 2) {
@@ -106,56 +102,4 @@ public class PageableText extends Pageable<Message> {
 			}
 		});
 	}
-
-	@Override
-	public void onGuildMessageReactionAdd(GuildMessageReactionAddEvent event) {
-		ReactionEmote react = event.getReactionEmote();
-		if (event.getUserIdLong() == client.getJDA().getSelfUser().getIdLong())
-			return;
-		if (member != null && event.getMember().getIdLong() != member.getIdLong()) {
-			if (react.isEmote()) {
-				event.retrieveMessage().queue(msg -> msg.removeReaction(react.getEmoji(), event.getUser()).queue());
-			} else {
-				event.retrieveMessage().queue(msg -> msg.removeReaction(react.getEmoji(), event.getUser()).queue());
-			}
-			return;
-		}
-
-		if (!react.isEmoji()) {
-			event.retrieveMessage().queue(msg -> msg.removeReaction(react.getEmoji(), event.getUser()).queue());
-			return;
-		}
-		event.retrieveMessage().queue(msg -> msg.removeReaction(react.getEmoji(), event.getUser()).queue());
-
-		switch (react.getEmoji()) {
-			case "▶":
-				this.page = Math.min(page + 1, pages.size() - 1);
-				break;
-			case "➡":
-				this.page += (double) pages.size() / 5.0;
-				this.page = Math.min(page, pages.size() - 1);
-				break;
-			case "⏩":
-				this.page = pages.size() - 1;
-				break;
-			case "◀":
-				this.page = Math.max(page - 1, 0);
-				break;
-			case "⬅":
-				this.page -= (double) pages.size() / 5.0;
-				this.page = Math.max(page, 0);
-				break;
-			case "⏪":
-				this.page = 0;
-				break;
-//			case "❌":
-//				event.retrieveMessage().queue(m -> m.delete().queue());
-//				return;
-			default:
-				System.out.println("Unknown emoji: " + react.getEmoji());
-				return;
-		}
-		send(event.getChannel());
-	}
-
 }
