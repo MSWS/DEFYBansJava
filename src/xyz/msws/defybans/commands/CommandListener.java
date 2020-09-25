@@ -2,6 +2,8 @@ package xyz.msws.defybans.commands;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -42,7 +44,6 @@ public class CommandListener extends ListenerAdapter {
 		if (event.getAuthor().getIdLong() == client.getJDA().getSelfUser().getIdLong())
 			return;
 		Message message = event.getMessage();
-		
 
 		if (!message.getContentDisplay().toLowerCase().startsWith(client.getPrefix().toLowerCase())
 				&& !message.getContentDisplay().startsWith("@" + client.getJDA().getSelfUser().getName()))
@@ -53,16 +54,38 @@ public class CommandListener extends ListenerAdapter {
 						? client.getPrefix().length()
 						: client.getJDA().getSelfUser().getName().length() + 2);
 
-		for (AbstractCommand cmd : commands) {
-			if (cmd.getName().equalsIgnoreCase(msg.split(" ")[0])
-					|| cmd.getAliases().contains(msg.split(" ")[0].toLowerCase())) {
-				if (!cmd.checkPermission(message))
+		AbstractCommand cmd = null;
+
+		for (AbstractCommand c : commands) {
+			if (c.getName().equalsIgnoreCase(msg.split(" ")[0])
+					|| c.getAliases().contains(msg.split(" ")[0].toLowerCase())) {
+				if (!c.checkPermission(message))
 					break;
-				message.getTextChannel().sendTyping().queue();
-				cmd.execute(message,
-						msg.contains(" ") ? msg.substring(msg.indexOf(" ") + 1).split(" ") : new String[0]);
+				cmd = c;
 				break;
 			}
 		}
+		if (cmd == null)
+			return;
+
+		boolean running = true;
+
+		final AbstractCommand fCmd = cmd;
+		new Thread(() -> {
+			fCmd.execute(message, msg.contains(" ") ? msg.substring(msg.indexOf(" ") + 1).split(" ") : new String[0]);
+		}).start();
+
+		new Timer().schedule(new TimerTask() {
+
+			@Override
+			public void run() {
+				if (!running) {
+					this.cancel();
+					return;
+				}
+				message.getTextChannel().sendTyping().queue();
+			}
+		}, 0, 8000);
+
 	}
 }
