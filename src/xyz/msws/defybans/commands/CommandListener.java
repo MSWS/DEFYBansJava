@@ -71,11 +71,15 @@ public class CommandListener extends ListenerAdapter {
 		boolean running = true;
 
 		final AbstractCommand fCmd = cmd;
+		Timer timer = new Timer();
+
 		new Thread(() -> {
 			fCmd.execute(message, msg.contains(" ") ? msg.substring(msg.indexOf(" ") + 1).split(" ") : new String[0]);
+			timer.cancel();
 		}).start();
 
-		new Timer().schedule(new TimerTask() {
+		
+		timer.schedule(new TimerTask() {
 
 			@Override
 			public void run() {
