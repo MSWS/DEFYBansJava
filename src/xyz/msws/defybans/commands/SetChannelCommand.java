@@ -45,6 +45,11 @@ public class SetChannelCommand extends AbstractCommand {
 			return;
 		}
 
+		if (!channel.canTalk()) {
+			message.getChannel().sendMessage("Cannot access that channel.").queue();
+			return;
+		}
+
 		ServerConfig config = new ServerConfig(message.getGuild().getIdLong());
 		config.setChannelID(channel.getIdLong());
 		config.save();

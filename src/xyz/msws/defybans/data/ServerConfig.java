@@ -32,6 +32,10 @@ public class ServerConfig implements Saveable {
 		load();
 	}
 
+	public File getFile() {
+		return file;
+	}
+
 	public long getGuildID() {
 		return guild;
 	}

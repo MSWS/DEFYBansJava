@@ -19,6 +19,7 @@ import xyz.msws.defybans.commands.PingCommand;
 import xyz.msws.defybans.commands.SetChannelCommand;
 import xyz.msws.defybans.commands.TestRegexCommand;
 import xyz.msws.defybans.commands.UptimeCommand;
+import xyz.msws.defybans.tracker.DataTracker;
 import xyz.msws.defybans.tracker.GuildTrackAssigner;
 
 public class SourceModBans extends Client {
@@ -42,6 +43,7 @@ public class SourceModBans extends Client {
 			loadModules();
 
 			jda.addEventListener(commands);
+			jda.addEventListener(new DataTracker(this.getModule(GuildTrackAssigner.class)));
 			jda.getPresence().setActivity(Activity.watching("SourceMod Bans"));
 			MessageAction.setDefaultMentions(new ArrayList<>());
 
